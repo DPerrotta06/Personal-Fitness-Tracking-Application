@@ -1,10 +1,7 @@
 package org.example.personalfitnesstracker.Models;
 
-import eu.hansolo.toolbox.time.DateTimes;
 import javafx.beans.property.*;
-import javafx.util.converter.LocalDateTimeStringConverter;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
 
 public class User {
