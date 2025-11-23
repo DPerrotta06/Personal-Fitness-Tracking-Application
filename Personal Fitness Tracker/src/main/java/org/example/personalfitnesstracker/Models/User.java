@@ -1,7 +1,5 @@
 package org.example.personalfitnesstracker.Models;
-
 import javafx.beans.property.*;
-
 import java.time.LocalDateTime;
 
 public class User {
