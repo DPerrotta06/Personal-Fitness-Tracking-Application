@@ -35,5 +35,6 @@ public class DatabaseManager {
          }catch(SQLException e){
              Logger.getLogger(DatabaseManager.class.getName()).log(Level.SEVERE, "Error connecting to database.", e);
          }
+         return false;
      }
 }
