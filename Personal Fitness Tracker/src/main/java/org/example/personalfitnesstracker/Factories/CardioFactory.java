@@ -7,6 +7,6 @@ public class CardioFactory implements IWorkoutFactory {
 
     @Override
     public Workout addNewWorkoutSession(WorkoutAttributeData attr) {
-        return new CardioWorkout(attr.workoutId(), attr.workoutName(), attr.workoutDescription(), attr.workoutDuration(), attr.caloriesBurned(), attr.userId(), attr.dateStamp(), attr.totalDistance(), attr.heartRateZone());
+        return new CardioWorkout(attr.workoutId(), attr.workoutName(), attr.workoutDescription(), attr.workoutDuration(), attr.caloriesBurned(),attr.userId(), attr.dateStamp(), attr.totalDistance(), attr.heartRateZone());
     }
 }
