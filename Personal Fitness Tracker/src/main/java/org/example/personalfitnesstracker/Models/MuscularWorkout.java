@@ -13,7 +13,7 @@ public class MuscularWorkout extends Workout{
     private final IntegerProperty totalReps;
     private final DoubleProperty totalWeight;
 
-    public MuscularWorkout(int workoutId, String workoutName, String workoutDescription, double workoutDuration, int caloriesBurned, LocalDateTime dateStamp, int userId, int totalSets, int totalReps, double totalWeight) {
+    public MuscularWorkout(int workoutId, String workoutName, String workoutDescription, double workoutDuration, int caloriesBurned, int userId, LocalDateTime dateStamp, int totalSets, int totalReps, double totalWeight) {
         super(workoutId, workoutName, workoutDescription, workoutDuration, caloriesBurned, dateStamp, userId);
         this.totalSets = new SimpleIntegerProperty(totalSets);
         this.totalReps = new SimpleIntegerProperty(totalReps);

@@ -12,7 +12,7 @@ public class CardioWorkout extends Workout{
     private final DoubleProperty totalDistance;
     private final StringProperty heartRateZone;
 
-    public CardioWorkout(int workoutId, String workoutName, String workoutDescription, double workoutDuration, int caloriesBurned, LocalDateTime dateStamp, int userId, double totalDistance, String heartRateZone) {
+    public CardioWorkout(int workoutId, String workoutName, String workoutDescription, double workoutDuration, int caloriesBurned, int userId, LocalDateTime dateStamp, double totalDistance, String heartRateZone) {
         super(workoutId, workoutName, workoutDescription, workoutDuration, caloriesBurned, dateStamp, userId);
         this.totalDistance = new SimpleDoubleProperty(totalDistance);
         this.heartRateZone = new SimpleStringProperty(heartRateZone);

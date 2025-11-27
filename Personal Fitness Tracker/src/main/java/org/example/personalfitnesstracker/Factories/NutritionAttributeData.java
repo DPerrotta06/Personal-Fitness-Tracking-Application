@@ -1,11 +1,11 @@
 package org.example.personalfitnesstracker.Factories;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record NutritionAttributeData(
         int nutritionId,
         String nutritionDescription,
-        LocalDate timeStamp,
+        LocalDateTime timeStamp,
         int userId,
         Double amountInLiters,
         String recipe,

@@ -8,11 +8,11 @@ import org.example.personalfitnesstracker.Factories.NutritionAttributeData;
 import org.example.personalfitnesstracker.Factories.WaterFactory;
 import org.example.personalfitnesstracker.Models.Nutrition;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
- * Controller responsible for creating and managing Nutrition logs
- * (Food and Water).
+ * Controller responsible for creating and managing Nutrition logs (Food and
+ * Water).
  */
 public class NutritionController extends BaseController {
 
@@ -33,10 +33,10 @@ public class NutritionController extends BaseController {
 
     // WATER LOG
     public Nutrition addWaterLog(int nutritionId,
-                                 String description,
-                                 LocalDate timeStamp,
-                                 int userId,
-                                 double amountInLiters) {
+            String description,
+            LocalDateTime timeStamp,
+            int userId,
+            double amountInLiters) {
 
         if (!isPositive(amountInLiters)) {
             log("Cannot add water log: amount must be positive.");
@@ -48,13 +48,13 @@ public class NutritionController extends BaseController {
                 description,
                 timeStamp,
                 userId,
-                amountInLiters,  // amountInLiters
-                null,            // recipe
-                null,            // calories
-                null,            // protein
-                null,            // carbs
-                null,            // fats
-                null             // foodServingSize
+                amountInLiters, // amountInLiters
+                null, // recipe
+                null, // calories
+                null, // protein
+                null, // carbs
+                null, // fats
+                null // foodServingSize
         );
 
         Nutrition waterLog = waterFactory.addNutritionLog(attr);
@@ -65,15 +65,15 @@ public class NutritionController extends BaseController {
 
     // FOOD LOG
     public Nutrition addFoodLog(int nutritionId,
-                                String description,
-                                LocalDate timeStamp,
-                                int userId,
-                                String recipe,
-                                int calories,
-                                int protein,
-                                int carbs,
-                                int fats,
-                                double servingSize) {
+            String description,
+            LocalDateTime timeStamp,
+            int userId,
+            String recipe,
+            int calories,
+            int protein,
+            int carbs,
+            int fats,
+            double servingSize) {
 
         if (!isPositive(calories)) {
             log("Cannot add food log: calories must be positive.");
@@ -85,7 +85,7 @@ public class NutritionController extends BaseController {
                 description,
                 timeStamp,
                 userId,
-                null,           // amountInLiters
+                null, // amountInLiters
                 recipe,
                 calories,
                 protein,

@@ -3,7 +3,6 @@ package org.example.personalfitnesstracker.Factories;
 import org.example.personalfitnesstracker.Models.Food;
 import org.example.personalfitnesstracker.Models.Nutrition;
 
-import java.time.LocalDate;
 
 public class FoodFactory implements INutritionFactory{
     @Override

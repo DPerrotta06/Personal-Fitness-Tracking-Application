@@ -2,7 +2,7 @@ package org.example.personalfitnesstracker.Models;
 
 import javafx.beans.property.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class Food extends Nutrition{
 
@@ -13,7 +13,7 @@ public class Food extends Nutrition{
     private final IntegerProperty fats;
     private final DoubleProperty foodServingSize;
 
-    public Food(int nutritionId, String nutritionDescription, LocalDate timeStamp, int userId, String recipe, int calories, int protein, int carbs, int fats, double foodServingSize) {
+    public Food(int nutritionId, String nutritionDescription, LocalDateTime timeStamp, int userId, String recipe, int calories, int protein, int carbs, int fats, double foodServingSize) {
         super(nutritionId, nutritionDescription, timeStamp, userId);
         this.recipe = new SimpleStringProperty(recipe);
         this.calories = new SimpleIntegerProperty(calories);

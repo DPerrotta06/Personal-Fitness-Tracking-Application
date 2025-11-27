@@ -3,30 +3,35 @@ package org.example.personalfitnesstracker.Models;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class Sleep {
+
     private final IntegerProperty sleepSessionId;
-    private final LocalDate sleepStart;
-    private final LocalDate sleepEnd;
+    private final LocalDateTime sleepStart;
+    private final LocalDateTime sleepEnd;
     private final IntegerProperty userId;
 
-    public Sleep(int sleepSessionId, LocalDate sleepStart, LocalDate sleepEnd, int userId) {
+    public Sleep(int sleepSessionId, LocalDateTime sleepStart, LocalDateTime sleepEnd, int userId) {
         this.sleepSessionId = new SimpleIntegerProperty(sleepSessionId);
         this.sleepStart = sleepStart;
         this.sleepEnd = sleepEnd;
         this.userId = new SimpleIntegerProperty(userId);
     }
 
-    public IntegerProperty sleepSessionIdProperty(){
+    public IntegerProperty sleepSessionIdProperty() {
         return sleepSessionId;
     }
 
-    public LocalDate sleepStartProperty(){
+    public LocalDateTime sleepStartProperty() {
         return sleepStart;
     }
 
-    public LocalDate sleepEndProperty(){
+    public LocalDateTime sleepEndProperty() {
         return sleepEnd;
+    }
+
+    public IntegerProperty userIdProperty() {
+        return userId;
     }
 }

@@ -5,16 +5,16 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class Nutrition {
 
     protected final IntegerProperty nutritionId;
     protected final StringProperty nutritionDescription;
-    protected final LocalDate timeStamp;
+    protected final LocalDateTime timeStamp;
     protected final IntegerProperty userId;
 
-    public Nutrition(int nutritionId, String nutritionDescription, LocalDate timeStamp, int userId) {
+    public Nutrition(int nutritionId, String nutritionDescription, LocalDateTime timeStamp, int userId) {
         this.nutritionId = new SimpleIntegerProperty(nutritionId);
         this.nutritionDescription = new SimpleStringProperty(nutritionDescription);
         this.timeStamp = timeStamp;
@@ -29,7 +29,7 @@ public class Nutrition {
         return nutritionDescription;
     }
 
-    public LocalDate timeStampProperty() {
+    public LocalDateTime timeStampProperty() {
         return timeStamp;
     }
 

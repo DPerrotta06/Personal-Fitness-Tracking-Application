@@ -3,7 +3,6 @@ package org.example.personalfitnesstracker;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.example.personalfitnesstracker.Controllers.LoginController;
-import org.example.personalfitnesstracker.Views.CreateAccountView;
 import org.example.personalfitnesstracker.Views.LoginView;
 
 public class Main extends Application{

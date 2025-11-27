@@ -7,18 +7,17 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class CreateAccountView extends Stage {
-    private TextField usernameField;
-    private TextField passwordField;
-    private TextField emailField;
-    private Button createButton;
-
+    private final TextField usernameField;
+    private final TextField passwordField;
+    private final TextField emailField;
+    private final Button createButton;
     public CreateAccountView() {
         setTitle("Create Account");
-
         // --- Main Layout ---
         VBox root = new VBox();
         root.setSpacing(12);

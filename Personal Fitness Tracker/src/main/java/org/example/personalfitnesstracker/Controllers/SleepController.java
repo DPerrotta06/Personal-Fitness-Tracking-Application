@@ -4,7 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.example.personalfitnesstracker.Models.Sleep;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Controller responsible for creating and managing Sleep sessions.
@@ -22,9 +22,9 @@ public class SleepController extends BaseController {
     }
 
     public Sleep addSleepSession(int sleepSessionId,
-                                 LocalDate sleepStart,
-                                 LocalDate sleepEnd,
-                                 int userId) {
+            LocalDateTime sleepStart,
+            LocalDateTime sleepEnd,
+            int userId) {
 
         if (sleepStart == null || sleepEnd == null || sleepEnd.isBefore(sleepStart)) {
             log("Cannot add sleep session: invalid dates.");
