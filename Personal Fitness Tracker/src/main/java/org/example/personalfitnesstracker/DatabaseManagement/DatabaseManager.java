@@ -24,8 +24,8 @@ import org.example.personalfitnesstracker.Models.*;
  *
  * @author danie
  */
-public class DatabaseManager {
-    
+public class DatabaseManager { //might be immutable?
+
     private static final DBLoader loadDatabase = DBLoader.getInstance(); //reads all database credentials once
     private static final String URL = loadDatabase.getDbURL();
     private static final String USER = loadDatabase.getDbUser();
@@ -62,11 +62,10 @@ public class DatabaseManager {
     }
 
     /**
-     * Adds a new user to the Users table in the database
      *
      * @param user
      */
-    public static void addNewUserToDb(User user) {
+    public static void addNewUserToDb(User user) { //LOOK OVER
         String query = "INSERT INTO Users (UserID, Password, Email, Weight, Height, DateOfBirth, Username) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             prepStat.setBytes(1, user.passwordProperty().get()); //inserting password
@@ -87,7 +86,7 @@ public class DatabaseManager {
      *
      * @param sleep
      */
-    public static void addNewSleepSessionToDb(Sleep sleep) {
+    public static void addNewSleepSessionToDb(Sleep sleep) { //LOOK OVER
         String query = "INSERT INTO Sleep (SleepSessionID, UserID, SleepStart, SleepEnd) VALUES (?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             prepStat.setInt(1, sleep.userIdProperty().get());
@@ -314,8 +313,8 @@ public class DatabaseManager {
     }
 
     /**
-     * Retrieving all data from the Sleep table
-     * WORK IN PROGRESS
+     * Retrieving all data from the Sleep table WORK IN PROGRESS
+     *
      * @return
      */
     public static ObservableList<Sleep> displaySleepingLogs() {
@@ -339,17 +338,18 @@ public class DatabaseManager {
 
     /**
      * Retrieving all data from the Nutrition table and its children
-     * WORK IN PROGRESS
+     *
      * @return
      */
     public static ObservableList<Nutrition> displayNutritionLogs() {
         ObservableList<Nutrition> nutrition = FXCollections.observableArrayList();
-        String query = "SELECT FROM * Nutrition";
+        String query = "SELECT n.*, f.Recipe, f.Calories, f.Protein, f.Carbs, f.Fats, f.FoodServing, w.AmountInLiters "
+                + "FROM Nutrition n LEFT JOIN Food f ON n.NutritionID = f.Nutrition.ID "
+                + "LEFT JOIN Water w ON n.NutritionID = w.NutritionID";
         try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
             ResultSet set = prepStat.executeQuery();
             while (set.next()) {
-                String nutriType = set.getString("type");
-                if ("Food".equalsIgnoreCase(nutriType)) {
+                if (set.getObject("Calories") != null) {
                     nutrition.add(new Food(
                             set.getInt("NutritionID"),
                             set.getString("NutritionDescription"),
@@ -362,7 +362,7 @@ public class DatabaseManager {
                             set.getInt("Fats"),
                             set.getDouble("FoodServing")
                     ));
-                } else if ("Water".equalsIgnoreCase(nutriType)) {
+                } else {
                     nutrition.add(new Water(
                             set.getInt("NutritionID"),
                             set.getString("NutritionDescription"),
@@ -379,18 +379,19 @@ public class DatabaseManager {
     }
 
     /**
-     *Retrieving all data from the Workouts table and all its children
-     * WORK IN PROGRESS
+     * Retrieving all data from the Workouts table and all its children
+     *
      * @return
      */
     public static ObservableList<Workout> displayWorkoutLogs() {
         ObservableList<Workout> workout = FXCollections.observableArrayList();
-        String query = "SELECT * FROM Workouts";
+        String query = "SELECT w.*, m.TotalSets, m.TotalReps, m.TotalWeight, c.TotalDistance, c.HeartRateZone "
+                + "FROM Workouts w LEFT JOIN MuscularWorkout m ON w.WorkoutID = m.WorkoutID "
+                + "LEFT JOIN CardioWorkout c ON w.WorkoutID = c.WorkoutID";
         try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
             ResultSet set = prepStat.executeQuery();
             while (set.next()) {
-                String workoutType = set.getString("type");
-                if ("Muscular Workout".equalsIgnoreCase(workoutType)) {
+                if (set.getObject("TotalReps") != null) {
                     workout.add(new MuscularWorkout(
                             set.getInt("WorkoutID"),
                             set.getString("WorkoutName"),
@@ -403,7 +404,7 @@ public class DatabaseManager {
                             set.getInt("TotalReps"),
                             set.getDouble("TotalWeight")
                     ));
-                } else if ("Cardio Workout".equalsIgnoreCase(workoutType)) {
+                } else {
                     workout.add(new CardioWorkout(
                             set.getInt("WorkoutID"),
                             set.getString("WorkoutName"),
@@ -422,20 +423,64 @@ public class DatabaseManager {
         }
         return workout;
     }
-    
+
     /**
      * Retrieving all data from the Goal table and all its children
-     * WORK IN PROGRESS
-     * @return 
+     *
+     * @return
      */
     public static ObservableList<Goal> displayGoals() {
         ObservableList<Goal> goal = FXCollections.observableArrayList();
-        String query = "SELECT * FROM Goal";
+        String query = "SELECT g.*, m.HeaviestLift, m.MaxRepCount, m.MaxSetsGoal, ca.TargetRestingHeartRate, ca.MaxDistance, b.TargetWeightGain, b.TargetDailyCaloricIntake, cu.TargetWeightLoss, cu.TargetDailyCaloricDeficit"
+                + "FROM Goal g LEFT JOIN MuscularGoal m ON g.WorkoutID = m.WorkoutID "
+                + "LEFT JOIN CardioGoal ca ON g.WorkoutID = ca.WorkoutID "
+                + "LEFT JOIN BulkingGoal b ON w.WorkoutID = b.WorkoutID "
+                + "LEFT JOIN CuttingGoal cu ON w.WorkoutID = cu.WorkoutID";
         try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
             ResultSet set = prepStat.executeQuery();
-            while(set.next()){
-                String goalType = set.getString("type");
-                
+            while (set.next()) {
+                if (set.getObject("MaxRepCount") != null) {
+                    goal.add(new MuscularGoal(
+                            set.getInt("WorkoutID"),
+                            set.getString("GoalName"),
+                            set.getString("GoalDescription"),
+                            set.getBoolean("IsCompleted"),
+                            set.getInt("UserID"),
+                            set.getDouble("HeaviestLift"),
+                            set.getInt("MaxRepCount"),
+                            set.getInt("MaxSetsGoal")
+                    ));
+                } else if (set.getObject("TargetRestingHeartRate") != null) {
+                    goal.add(new CardioGoal(
+                            set.getInt("WorkoutID"),
+                            set.getString("GoalName"),
+                            set.getString("GoalDescription"),
+                            set.getBoolean("IsCompleted"),
+                            set.getInt("UserID"),
+                            set.getInt("TargetRestingHeartRate"),
+                            set.getDouble("MaxDistance")
+                    ));
+                } else if (set.getObject("TargetWeightGain") != null) {
+                    goal.add(new BulkingGoal(
+                            set.getInt("WorkoutID"),
+                            set.getString("GoalName"),
+                            set.getString("GoalDescription"),
+                            set.getBoolean("IsCompleted"),
+                            set.getInt("UserID"),
+                            set.getDouble("TargetWeightGain"),
+                            set.getInt("TargetDailyCaloricIntake")
+                    ));
+                } else {
+                    goal.add(new CuttingGoal(
+                            set.getInt("WorkoutID"),
+                            set.getString("GoalName"),
+                            set.getString("GoalDescription"),
+                            set.getBoolean("IsCompleted"),
+                            set.getInt("UserID"),
+                            set.getDouble("TargetWeightLoss"),
+                            set.getInt("TargetDailyCaloricDeficit")
+                    ));
+                }
             }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error connecting to database.", e); //logger

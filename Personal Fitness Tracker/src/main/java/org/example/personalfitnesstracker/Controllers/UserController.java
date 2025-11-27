@@ -32,6 +32,7 @@ public class UserController extends BaseController {
 
     /**
      * Create a new User for the database to store
+
      *
      * @param userId
      * @param username
