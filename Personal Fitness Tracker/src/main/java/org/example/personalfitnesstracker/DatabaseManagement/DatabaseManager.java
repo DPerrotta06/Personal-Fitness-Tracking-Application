@@ -32,7 +32,7 @@ public class DatabaseManager { //might be immutable?
     private static final String PW = loadDatabase.getDbPassword();
     private static final Logger logger = Logger.getLogger(DatabaseManager.class.getName());
     private final FileHandler logFile;
-    
+
     public DatabaseManager() throws IOException {
         this.logFile = new FileHandler("src\\logfile.log", true);
         this.logFile.setFormatter(new SimpleFormatter());
@@ -112,8 +112,11 @@ public class DatabaseManager { //might be immutable?
             ResultSet parentRef = prepStat.getGeneratedKeys();
             if (parentRef.next()) {
                 int nutritionId = parentRef.getInt(1);
-                addFood((Food) nutrition, nutritionId, conn);
-                addWater((Water) nutrition, nutritionId, conn);
+                if (nutrition instanceof Food food) {
+                    addFood(food, nutritionId, conn);
+                } else if (nutrition instanceof Water water) {
+                    addWater(water, nutritionId, conn);
+                }
             }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
@@ -173,11 +176,15 @@ public class DatabaseManager { //might be immutable?
             ResultSet parentRef = prepStat.getGeneratedKeys();
             if (parentRef.next()) {
                 int goalId = parentRef.getInt(1);
-                //check if instanceof here
-                addCardioGoal((CardioGoal) goal, goalId, conn);
-                addMuscularGoal((MuscularGoal) goal, goalId, conn);
-                addBulkingGoal((BulkingGoal) goal, goalId, conn);
-                addCuttingGoal((CuttingGoal) goal, goalId, conn);
+                if (goal instanceof CardioGoal cardioGoal) {
+                    addCardioGoal(cardioGoal, goalId, conn);
+                } else if (goal instanceof MuscularGoal muscularGoal) {
+                    addMuscularGoal(muscularGoal, goalId, conn);
+                } else if (goal instanceof BulkingGoal bulkingGoal) {
+                    addBulkingGoal((BulkingGoal) goal, goalId, conn);
+                } else if (goal instanceof CuttingGoal cuttingGoal) {
+                    addCuttingGoal(cuttingGoal, goalId, conn);
+                }
             }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
@@ -269,8 +276,11 @@ public class DatabaseManager { //might be immutable?
             ResultSet parentRef = prepStat.getGeneratedKeys();
             if (parentRef.next()) {
                 int workoutId = parentRef.getInt(1);
-                addMuscularWorkout((MuscularWorkout) workout, workoutId, conn);
-                addCardioWorkout((CardioWorkout) workout, workoutId, conn);
+                if (workout instanceof MuscularWorkout muscularWorkout) {
+                    addMuscularWorkout(muscularWorkout, workoutId, conn);
+                } else if (workout instanceof CardioWorkout cardioWorkout) {
+                    addCardioWorkout(cardioWorkout, workoutId, conn);
+                }
             }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
@@ -312,15 +322,67 @@ public class DatabaseManager { //might be immutable?
         }
     }
 
+    public static ObservableList<User> getUserById() {
+        ObservableList<User> user = FXCollections.observableArrayList();
+        String query = "SELECT * FROM Users WHERE UserID = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW)) {
+            PreparedStatement prepStat = conn.prepareStatement(query);
+            ResultSet set = prepStat.executeQuery();
+            while (set.next()) {
+                user.add(new User(
+                        set.getInt("UserID"),
+                        set.getBytes("Password"),
+                        set.getString("Email"),
+                        set.getDouble("Weight"),
+                        set.getDouble("Height"),
+                        set.getDate("DateOfBirth"),
+                        set.getString("Username")
+                ));
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
+        }
+        return user;
+    }
+
+    /**
+     * Retrieve the right user via their email
+     *
+     * @return
+     */
+    public static ObservableList<User> getUserByEmail() {
+        ObservableList<User> user = FXCollections.observableArrayList();
+        String query = "SELECT * FROM Users WHERE Email = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW)) {
+            PreparedStatement prepStat = conn.prepareStatement(query);
+            ResultSet set = prepStat.executeQuery();
+            while (set.next()) {
+                user.add(new User(
+                        set.getInt("UserID"),
+                        set.getBytes("Password"),
+                        set.getString("Email"),
+                        set.getDouble("Weight"),
+                        set.getDouble("Height"),
+                        set.getDate("DateOfBirth"),
+                        set.getString("Username")
+                ));
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
+        }
+        return user;
+    }
+
     /**
      * Retrieving all data from the Sleep table WORK IN PROGRESS
      *
      * @return
      */
-    public static ObservableList<Sleep> displaySleepingLogs() {
+    public static ObservableList<Sleep> displaySleepingLogs(int userID) {
         ObservableList<Sleep> sleep = FXCollections.observableArrayList();
-        String query = "SELECT * FROM Sleep";
+        String query = "SELECT * FROM Sleep WHERE UserID = ?";
         try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
+            prepStat.setInt(1, userID);
             ResultSet set = prepStat.executeQuery();
             while (set.next()) {
                 sleep.add(new Sleep(
@@ -341,12 +403,14 @@ public class DatabaseManager { //might be immutable?
      *
      * @return
      */
-    public static ObservableList<Nutrition> displayNutritionLogs() {
+    public static ObservableList<Nutrition> displayNutritionLogs(int userID) {
         ObservableList<Nutrition> nutrition = FXCollections.observableArrayList();
         String query = "SELECT n.*, f.Recipe, f.Calories, f.Protein, f.Carbs, f.Fats, f.FoodServing, w.AmountInLiters "
                 + "FROM Nutrition n LEFT JOIN Food f ON n.NutritionID = f.Nutrition.ID "
-                + "LEFT JOIN Water w ON n.NutritionID = w.NutritionID";
+                + "LEFT JOIN Water w ON n.NutritionID = w.NutritionID "
+                + "WHERE UserID = ?";
         try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
+            prepStat.setInt(1, userID);
             ResultSet set = prepStat.executeQuery();
             while (set.next()) {
                 if (set.getObject("Calories") != null) {
@@ -383,12 +447,14 @@ public class DatabaseManager { //might be immutable?
      *
      * @return
      */
-    public static ObservableList<Workout> displayWorkoutLogs() {
+    public static ObservableList<Workout> displayWorkoutLogs(int userID) {
         ObservableList<Workout> workout = FXCollections.observableArrayList();
         String query = "SELECT w.*, m.TotalSets, m.TotalReps, m.TotalWeight, c.TotalDistance, c.HeartRateZone "
                 + "FROM Workouts w LEFT JOIN MuscularWorkout m ON w.WorkoutID = m.WorkoutID "
-                + "LEFT JOIN CardioWorkout c ON w.WorkoutID = c.WorkoutID";
+                + "LEFT JOIN CardioWorkout c ON w.WorkoutID = c.WorkoutID "
+                + "WHERE UserID = ?";
         try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
+            prepStat.setInt(1, userID);
             ResultSet set = prepStat.executeQuery();
             while (set.next()) {
                 if (set.getObject("TotalReps") != null) {
@@ -429,14 +495,16 @@ public class DatabaseManager { //might be immutable?
      *
      * @return
      */
-    public static ObservableList<Goal> displayGoals() {
+    public static ObservableList<Goal> displayGoals(int userID) {
         ObservableList<Goal> goal = FXCollections.observableArrayList();
         String query = "SELECT g.*, m.HeaviestLift, m.MaxRepCount, m.MaxSetsGoal, ca.TargetRestingHeartRate, ca.MaxDistance, b.TargetWeightGain, b.TargetDailyCaloricIntake, cu.TargetWeightLoss, cu.TargetDailyCaloricDeficit"
                 + "FROM Goal g LEFT JOIN MuscularGoal m ON g.WorkoutID = m.WorkoutID "
                 + "LEFT JOIN CardioGoal ca ON g.WorkoutID = ca.WorkoutID "
                 + "LEFT JOIN BulkingGoal b ON w.WorkoutID = b.WorkoutID "
-                + "LEFT JOIN CuttingGoal cu ON w.WorkoutID = cu.WorkoutID";
+                + "LEFT JOIN CuttingGoal cu ON w.WorkoutID = cu.WorkoutID "
+                + "WHERE UserID = ?";
         try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
+            prepStat.setInt(1, userID);
             ResultSet set = prepStat.executeQuery();
             while (set.next()) {
                 if (set.getObject("MaxRepCount") != null) {
@@ -486,5 +554,21 @@ public class DatabaseManager { //might be immutable?
             logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
         }
         return goal;
+    }
+
+    /**
+     * REMOVE THIS LATER ONLY USE IS TO TEST CONNECTION!!! DELETE AT
+     * PRODUCTION!!!
+     *
+     * @return
+     */
+    public static boolean testConnection() {
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW)) {
+            System.out.println("Connection successful");
+            return true;
+        } catch (SQLException e) {
+            System.out.println("Connection failed");
+            return false;
+        }
     }
 }

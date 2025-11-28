@@ -3,11 +3,13 @@ package org.example.personalfitnesstracker;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.example.personalfitnesstracker.Controllers.LoginController;
+import org.example.personalfitnesstracker.DatabaseManagement.DatabaseManager;
 import org.example.personalfitnesstracker.Views.LoginView;
 
 public class Main extends Application{
     public static void main(String[] args) {
         launch(args);
+        //DatabaseManager.testConnection(); //FOR CONNECTION TESTING PURPOSES DELETE LATER!!!
     }
 
     @Override

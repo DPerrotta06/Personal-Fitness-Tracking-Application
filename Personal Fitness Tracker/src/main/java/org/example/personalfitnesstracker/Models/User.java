@@ -13,7 +13,7 @@ public class User {
     private final DoubleProperty height;
     private final Date dateOfBirth;
 
-    public User(int userId, String username, byte[] password, String email, double weight, double height, Date dateOfBirth) {
+    public User(int userId, byte[] password, String email, double weight, double height, Date dateOfBirth, String username) {
         this.userId = new SimpleIntegerProperty(userId);
         this.username = new SimpleStringProperty(username);
         this.password = new SimpleObjectProperty(password);
