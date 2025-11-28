@@ -26,6 +26,7 @@ public class LoginController {
             System.out.println("Login successful (beta)");
         });
 
+        // When create account link is clicked
         loginView.getCreateAccountLink().setOnAction(e -> {
             createAccountView = new CreateAccountView();
             CreateAccountController createAccountController = new CreateAccountController(createAccountView);
