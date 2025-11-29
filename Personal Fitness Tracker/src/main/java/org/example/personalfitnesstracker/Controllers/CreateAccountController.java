@@ -11,12 +11,11 @@ import org.example.personalfitnesstracker.Views.MainPageView;
 public class CreateAccountController extends BaseController {
 
     private final CreateAccountView createAccountView;
-    private final DatabaseManager databaseManager;
 
     public CreateAccountController(CreateAccountView createAccountView) {
         this.createAccountView = createAccountView;
         try {
-            this.databaseManager = new DatabaseManager();
+            DatabaseManager databaseManager = new DatabaseManager();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -55,7 +54,7 @@ public class CreateAccountController extends BaseController {
             }
             createUser(0, password, email, weight, height, dob, username);
             // When Create Account Button is clicked
-            createAccountView.getCreateAccountButton().setOnAction(e -> {
+            createAccountView.getCreateButton().setOnAction(e -> {
                 MainPageView mainPageView = new MainPageView();
                 MainPageController mainPageController = new MainPageController(mainPageView);
                 mainPageController.show();

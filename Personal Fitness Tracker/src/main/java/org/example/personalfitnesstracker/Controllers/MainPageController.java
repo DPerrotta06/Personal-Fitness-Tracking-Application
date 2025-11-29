@@ -1,6 +1,9 @@
 package org.example.personalfitnesstracker.Controllers;
 
+import org.example.personalfitnesstracker.DatabaseManagement.DatabaseManager;
 import org.example.personalfitnesstracker.Views.MainPageView;
+
+import java.io.IOException;
 
 public class MainPageController extends BaseController{
 
@@ -8,6 +11,11 @@ public class MainPageController extends BaseController{
 
     public MainPageController(MainPageView mainPageView) {
         this.mainPageView = new MainPageView();
+        try {
+            DatabaseManager databaseManager = new DatabaseManager();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         setupHandlers();
     }
 

@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 
 public class LoginView extends Stage {
 
-    private TextField usernameField;
+    private TextField emailField;
     private PasswordField passwordField;
     private Button loginButton;
     private Hyperlink createAccountLink;
@@ -32,14 +32,14 @@ public class LoginView extends Stage {
                 -fx-font-weight: bold;
         """);
 
-        // --- Username ---
-        Label usernameLabel = new Label("USERNAME:");
-        usernameLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
+        // --- Email ---
+        Label emailLabel = new Label("EMAIL:");
+        emailLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
 
-        usernameField = new TextField();
-        usernameField.setPromptText("Enter username");
-        usernameField.setMaxWidth(220);
-        usernameField.setStyle("""
+        emailField = new TextField();
+        emailField.setPromptText("Enter email");
+        emailField.setMaxWidth(220);
+        emailField.setStyle("""
                 -fx-background-radius: 10;
                 -fx-padding: 8;
         """);
@@ -75,7 +75,7 @@ public class LoginView extends Stage {
         // --- Adding everything ---
         root.getChildren().addAll(
                 title,
-                usernameLabel, usernameField,
+                emailLabel, emailField,
                 passwordLabel, passwordField,
                 createAccountLink,
                 loginButton
@@ -87,7 +87,7 @@ public class LoginView extends Stage {
     }
 
     // Getters so your controller can use the fields
-    public TextField getUsernameField() { return usernameField; }
+    public TextField getEmailField() { return emailField; }
     public PasswordField getPasswordField() { return passwordField; }
     public Button getLoginButton() { return loginButton; }
     public Hyperlink getCreateAccountLink() { return createAccountLink; }
