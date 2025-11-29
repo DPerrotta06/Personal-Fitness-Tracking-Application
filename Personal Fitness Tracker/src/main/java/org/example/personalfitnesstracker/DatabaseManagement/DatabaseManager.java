@@ -132,7 +132,7 @@ public class DatabaseManager { //might be immutable?
      * @param conn
      * @throws SQLException
      */
-    public static void addFood(Food food, int id, Connection conn) throws SQLException {
+    private static void addFood(Food food, int id, Connection conn) throws SQLException {
         String query = "INSERT INTO Food (NutritionID, Recipe, Calories, Protein, Carbs, Fats, FoodServin) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement prepStat = conn.prepareStatement(query)) {
             prepStat.setInt(1, id);
@@ -154,7 +154,7 @@ public class DatabaseManager { //might be immutable?
      * @param conn
      * @throws SQLException
      */
-    public static void addWater(Water water, int id, Connection conn) throws SQLException {
+    private static void addWater(Water water, int id, Connection conn) throws SQLException {
         String query = "INSERT INTO Water (NutritionId, AmountInLiters) VALUES (?, ?)";
         try (PreparedStatement prepStat = conn.prepareStatement(query)) {
             prepStat.setInt(1, id);
@@ -200,7 +200,7 @@ public class DatabaseManager { //might be immutable?
      * @param conn
      * @throws SQLException
      */
-    public static void addCardioGoal(CardioGoal cg, int id, Connection conn) throws SQLException {
+    private static void addCardioGoal(CardioGoal cg, int id, Connection conn) throws SQLException {
         String query = "INSERT INTO CardioGoal (GoalID, TargetRestingHeartRate, MaxDistance) VALUES (?, ?, ?)";
         try (PreparedStatement prepStat = conn.prepareStatement(query)) {
             prepStat.setInt(1, id);
@@ -217,7 +217,7 @@ public class DatabaseManager { //might be immutable?
      * @param conn
      * @throws SQLException
      */
-    public static void addMuscularGoal(MuscularGoal mg, int id, Connection conn) throws SQLException {
+    private static void addMuscularGoal(MuscularGoal mg, int id, Connection conn) throws SQLException {
         String query = "INSERT INTO MuscularGoal (GoalID, HeaviestLift, MaxRepCount, MaxSetsGoal) VALUES (?, ?, ?, ?)";
         try (PreparedStatement prepStat = conn.prepareStatement(query)) {
             prepStat.setInt(1, id);
@@ -235,7 +235,7 @@ public class DatabaseManager { //might be immutable?
      * @param conn
      * @throws SQLException
      */
-    public static void addBulkingGoal(BulkingGoal bg, int id, Connection conn) throws SQLException {
+    private static void addBulkingGoal(BulkingGoal bg, int id, Connection conn) throws SQLException {
         String query = "INSERT INTO BulkingGoal (GoalID, TargetWeightGain, TargetDailyCaloricDeficit) VALUES (?, ?, ?)";
         try (PreparedStatement prepStat = conn.prepareStatement(query)) {
             prepStat.setInt(1, id);
@@ -252,7 +252,7 @@ public class DatabaseManager { //might be immutable?
      * @param conn
      * @throws SQLException
      */
-    public static void addCuttingGoal(CuttingGoal cg, int id, Connection conn) throws SQLException {
+    private static void addCuttingGoal(CuttingGoal cg, int id, Connection conn) throws SQLException {
         String query = "INSERT INTO CuttingGoal (GoalID, TargetWeightLoss, TargetDailyCaloricDeficit) VALUES (?, ?, ?)";
         try (PreparedStatement prepStat = conn.prepareStatement(query)) {
             prepStat.setInt(1, id);
@@ -296,7 +296,7 @@ public class DatabaseManager { //might be immutable?
      * @param conn
      * @throws SQLException
      */
-    public static void addMuscularWorkout(MuscularWorkout mw, int id, Connection conn) throws SQLException {
+    private static void addMuscularWorkout(MuscularWorkout mw, int id, Connection conn) throws SQLException {
         String query = "INSERT INTO MuscularWorkout (WorkoutID, TotalSets, TotalReps, TotalWeight) VALUES (?, ?, ?, ?)";
         try (PreparedStatement prepStat = conn.prepareStatement(query)) {
             prepStat.setInt(1, id);
@@ -314,7 +314,7 @@ public class DatabaseManager { //might be immutable?
      * @param conn
      * @throws SQLException
      */
-    public static void addCardioWorkout(CardioWorkout cw, int id, Connection conn) throws SQLException {
+    private static void addCardioWorkout(CardioWorkout cw, int id, Connection conn) throws SQLException {
         String query = "INSERT INTO CardioWorkout (WorkoutID, TotalDistance, HeartRateZone) VALUES (?, ?, ?)";
         try (PreparedStatement prepStat = conn.prepareStatement(query)) {
             prepStat.setInt(1, id);
@@ -566,17 +566,16 @@ public class DatabaseManager { //might be immutable?
      * @param user
      * @return
      */
-    public static boolean updateUser(User user) {
+    public static void updateUser(User user) {
         String query = "UPDATE Users SET Password = ?, Email = ?, Weight = ?, Height = ?, DateOfBirth = ?, Username = ? WHERE UserID = ?";
         try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
             prepStat.setBytes(1, user.passwordProperty().get());
             prepStat.setString(2, user.emailProperty().get());
             prepStat.setDouble(3, user.weightProperty().get());
             prepStat.setDouble(4, user.heightProperty().get());
-            return prepStat.executeUpdate() > 0;
+            prepStat.executeUpdate();
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
-            return false;
         }
     }
 
@@ -585,44 +584,222 @@ public class DatabaseManager { //might be immutable?
      * @param sleep
      * @return
      */
-    public static boolean updateSleep(Sleep sleep) {
+    public static void updateSleep(Sleep sleep) {
         String query = "UPDATE Sleep SET SleepStart = ?, SleepEnd = ? WHERE UserID = ?";
         try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
             prepStat.setTimestamp(1, Timestamp.valueOf(sleep.sleepStartProperty()));
             prepStat.setTimestamp(2, Timestamp.valueOf(sleep.sleepEndProperty()));
-            return prepStat.executeUpdate() > 0;
+            prepStat.executeUpdate();
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
-            return false;
         }
     }
 
-    public static boolean updateGoal(Goal goal) {
+    /**
+     *
+     * @param goal
+     */
+    public static void updateGoal(Goal goal) {
         String query = "UPDATE Goal SET GoalName = ?, GoalDescription = ?, IsCompleted = ?, WHERE UserID = ?";
         try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
             prepStat.setString(1, goal.goalNameProperty().get());
             prepStat.setString(2, goal.goalDescriptionProperty().get());
             prepStat.setBoolean(3, goal.isCompletedProperty().get());
-            return prepStat.executeUpdate() > 0;
+            prepStat.executeUpdate();
+            if (goal instanceof MuscularGoal mg) {
+                updateMuscularGoal(mg, conn);
+            } else if (goal instanceof CardioGoal cg) {
+                updateCardioGoal(cg, conn);
+            } else if (goal instanceof BulkingGoal bg) {
+                updateBulkingGoal(bg, conn);
+            } else if (goal instanceof CuttingGoal cu) {
+                updateCuttingGoal(cu, conn);
+            }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
-            return false;
         }
     }
-  
-    /*public static boolean updateMuscularGoal(){
-        
+
+    /**
+     *
+     * @param mg
+     * @param conn
+     * @throws SQLException
+     */
+    private static void updateMuscularGoal(MuscularGoal mg, Connection conn) throws SQLException {
+        String query = "UPDATE MuscularGoal SET HeaviestLift = ?, MaxRepCount = ?, MaxSetsGoal = ? WHERE GoalID = ?";
+        try (PreparedStatement prepStat = conn.prepareStatement(query)) {
+            prepStat.setDouble(1, mg.heaviestLiftProperty().get());
+            prepStat.setInt(2, mg.maxRepCountProperty().get());
+            prepStat.setInt(3, mg.maxSetsCount().get());
+            prepStat.executeUpdate();
+        }
     }
 
-    public static boolean updateWorkout(Workout workout) {
-
+    /**
+     *
+     * @param cg
+     * @param conn
+     * @throws SQLException
+     */
+    private static void updateCardioGoal(CardioGoal cg, Connection conn) throws SQLException {
+        String query = "UPDATE CardioGoal SET TargetRestingHeartRate = ?, MaxDistance = ? WHERE GoalID = ?";
+        try (PreparedStatement prepStat = conn.prepareStatement(query)) {
+            prepStat.setInt(1, cg.targetRestingHeartRateProperty().get());
+            prepStat.setDouble(2, cg.maxDistanceProperty().get());
+            prepStat.executeUpdate();
+        }
     }
 
-    public static boolean updateNutrition(Nutrition nutrition) {
+    /**
+     *
+     * @param bg
+     * @param conn
+     * @throws SQLException
+     */
+    private static void updateBulkingGoal(BulkingGoal bg, Connection conn) throws SQLException {
+        String query = "UPDATE BulkingGoal SET TargetWeightGain = ?, TargetDailyCaloricIntake = ? WHERE GoalID = ?";
+        try (PreparedStatement prepStat = conn.prepareStatement(query)) {
+            prepStat.setDouble(1, bg.targetWeightGainProperty().get());
+            prepStat.setInt(2, bg.targetCaloricIntakeProperty().get());
+            prepStat.executeUpdate();
+        }
+    }
 
-    }*/
+    /**
+     *
+     * @param cu
+     * @param conn
+     * @throws SQLException
+     */
+    private static void updateCuttingGoal(CuttingGoal cu, Connection conn) throws SQLException {
+        String query = "UPDATE CuttingGoal SET TargetWeightLoss = ?, TargetDailyCaloricDeficit = ? WHERE UserID = ?";
+        try (PreparedStatement prepStat = conn.prepareStatement(query)) {
+            prepStat.setDouble(1, cu.targetWeightLossProperty().get());
+            prepStat.setInt(2, cu.targetCaloricDeficitProperty().get());
+            prepStat.executeUpdate();
+        }
+    }
+
+    /**
+     *
+     * @param workout
+     * @return
+     */
+    public static void updateWorkout(Workout workout) {
+        String query = "UPDATE Workouts SET WorkoutName = ?, WorkoutDescription = ?, WorkoutDuration = ?, CaloriesBurned = ?, DateStamp = ? WHERE UserID = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
+            prepStat.setString(1, workout.workoutNameProperty().get());
+            prepStat.setString(2, workout.workoutDescriptionProperty().get());
+            prepStat.setInt(3, workout.caloriesBurnedProperty().get());
+            prepStat.setTimestamp(4, Timestamp.valueOf(workout.dateStampProperty()));
+            prepStat.executeUpdate();
+            if (workout instanceof MuscularWorkout mw) {
+                updateMuscularWorkout(mw, conn);
+            } else if (workout instanceof CardioWorkout cw) {
+                updateCardioWorkout(cw, conn);
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
+        }
+    }
+
+    /**
+     *
+     * @param mw
+     * @param conn
+     * @throws SQLException
+     */
+    private static void updateMuscularWorkout(MuscularWorkout mw, Connection conn) throws SQLException {
+        String query = "UPDATE MuscularWorkout SET TotalSets = ?, TotalReps = ?, TotalWeight = ? WHERE WorkoutID = ?";
+        try (PreparedStatement prepStat = conn.prepareStatement(query)) {
+            prepStat.setInt(1, mw.totalSetsProperty().get());
+            prepStat.setInt(2, mw.totalRepsProperty().get());
+            prepStat.setDouble(3, mw.totalWeightProperty().get());
+            prepStat.executeUpdate();
+        }
+    }
+
+    /**
+     *
+     * @param cw
+     * @param conn
+     * @throws SQLException
+     */
+    private static void updateCardioWorkout(CardioWorkout cw, Connection conn) throws SQLException {
+        String query = "UPDATE CardioWorkout SET TotalDistance = ?, HeartRateZone = ? WHERE WorkoutID = ?";
+        try (PreparedStatement prepStat = conn.prepareStatement(query)) {
+            prepStat.setDouble(1, cw.totalDistanceProperty().get());
+            prepStat.setString(2, cw.heartRateZoneProperty().get());
+            prepStat.executeUpdate();
+        }
+    }
+
+    /**
+     *
+     * @param nutrition
+     */
+    public static void updateNutrition(Nutrition nutrition) {
+        String query = "UPDATE Nutrition SET NutritionDescription = ?, TimeStamp = ? WHERE UserID = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
+            prepStat.setString(1, nutrition.nutritionDescriptionProperty().get());
+            prepStat.setTimestamp(2, Timestamp.valueOf(nutrition.timeStampProperty()));
+            prepStat.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
+        }
+    }
+
+    /**
+     *
+     * @param food
+     * @param conn
+     * @throws SQLException
+     */
+    private static void updateFood(Food food, Connection conn) throws SQLException {
+        String query = "UPDATE Food SET Recipe = ?, Calories = ?, Protein = ?, Carbs = ?, Fats = ?, FoodServing = ? WHERE NutritionID = ?";
+        try (PreparedStatement prepStat = conn.prepareStatement(query)) {
+            prepStat.setString(1, food.recipeProperty().get());
+            prepStat.setInt(2, food.caloriesProperty().get());
+            prepStat.setInt(3, food.proteinProperty().get());
+            prepStat.setInt(4, food.carbsProperty().get());
+            prepStat.setInt(5, food.fatsProperty().get());
+            prepStat.setDouble(6, food.foodServingSizeProperty().get());
+            prepStat.executeUpdate();
+        }
+    }
+
+    /**
+     *
+     * @param water
+     * @param conn
+     * @throws SQLException
+     */
+    private static void updateWater(Water water, Connection conn) throws SQLException {
+        String query = "UPDATE Water SET AmountInLiters = ? WHERE NutritionID = ?";
+        try (PreparedStatement prepStat = conn.prepareStatement(query)) {
+            prepStat.setDouble(1, water.amountInLitersProperty().get());
+            prepStat.executeUpdate();
+        }
+    }
 
     //====================================DELETE====================================
+    /**
+     *
+     * @param userId
+     */
+    public static void deleteUser(int userId) {
+        String query = "DELETE FROM Users WHERE UserID = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
+
+            prepStat.setInt(1, userId);
+            prepStat.executeUpdate();
+
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error deleting user.", e);
+        }
+    }
+
     /**
      * REMOVE THIS LATER ONLY USE IS TO TEST CONNECTION!!! DELETE AT
      * PRODUCTION!!!
