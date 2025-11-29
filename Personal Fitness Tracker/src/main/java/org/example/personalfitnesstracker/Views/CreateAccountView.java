@@ -7,7 +7,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -15,13 +14,17 @@ public class CreateAccountView extends Stage {
     private final TextField usernameField;
     private final TextField passwordField;
     private final TextField emailField;
+    private final TextField weightField;
+    private final TextField heightField;
+    private final TextField dateOfBirthField;
     private final Button createButton;
+
     public CreateAccountView() {
         setTitle("Create Account");
         // --- Main Layout ---
         VBox root = new VBox();
         root.setSpacing(12);
-        root.setAlignment(Pos.CENTER);
+        root.setAlignment(Pos.TOP_CENTER);
         root.setPadding(new Insets(25));
         root.setStyle("-fx-background-color: #000000;");
 
@@ -33,6 +36,7 @@ public class CreateAccountView extends Stage {
                 -fx-font-family: Arial, Helvetica, sans-serif;
                 -fx-font-weight: bold;
                 """);
+
         // --- Username ---
         Label usernameLabel = new Label("USERNAME:");
         usernameLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
@@ -41,8 +45,8 @@ public class CreateAccountView extends Stage {
         usernameField.setPromptText("Enter username");
         usernameField.setMaxWidth(220);
         usernameField.setStyle("""
-                -fx-background-radius: 10;
-                -fx-padding: 8;
+                -fx-background-radius: 8;
+                -fx-padding: 6;
         """);
 
         // --- Email ---
@@ -53,8 +57,8 @@ public class CreateAccountView extends Stage {
         emailField.setPromptText("Enter email");
         emailField.setMaxWidth(230);
         emailField.setStyle("""
-                -fx-background-radius: 10;
-                -fx-padding: 8;
+                -fx-background-radius: 8;
+                -fx-padding: 6;
                 """);
 
         // --- Password ---
@@ -65,9 +69,45 @@ public class CreateAccountView extends Stage {
         passwordField.setPromptText("Enter password");
         passwordField.setMaxWidth(230);
         passwordField.setStyle("""
-                -fx-background-radius: 10;
-                -fx-padding: 8;
+                -fx-background-radius: 8;
+                -fx-padding: 6;
                 """);
+
+        // --- Weight ---
+        Label weightLabel = new Label("WEIGHT:");
+        weightLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
+
+        weightField = new TextField();
+        weightField.setPromptText("Enter weight");
+        weightField.setMaxWidth(220);
+        weightField.setStyle("""
+                -fx-background-radius: 8;
+                -fx-padding: 6;
+        """);
+
+        // --- Height ---
+        Label heightLabel = new Label("HEIGHT:");
+        heightLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
+
+        heightField = new TextField();
+        heightField.setPromptText("Enter height");
+        heightField.setMaxWidth(220);
+        heightField.setStyle("""
+                -fx-background-radius: 8;
+                -fx-padding: 6;
+        """);
+
+        // --- Date of birth ---
+        Label dateOfBirthLabel = new Label("DATE OF BIRTH:");
+        dateOfBirthLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
+
+        dateOfBirthField = new TextField();
+        dateOfBirthField.setPromptText("Enter date of birth");
+        dateOfBirthField.setMaxWidth(220);
+        dateOfBirthField.setStyle("""
+                -fx-background-radius: 8;
+                -fx-padding: 6;
+        """);
 
         // --- Create Account button ---
         createButton = new Button("Create Account");
@@ -77,7 +117,7 @@ public class CreateAccountView extends Stage {
                 -fx-font-size: 15px;
                 -fx-font-weight: bold;
                 -fx-background-radius: 8;
-                -fx-padding: 10 20 10 20;
+                -fx-padding: 15 20 10 20;
         """);
 
         root.getChildren().addAll(
@@ -88,24 +128,37 @@ public class CreateAccountView extends Stage {
                 emailField,
                 passwordLabel,
                 passwordField,
+                weightLabel,
+                weightField,
+                heightLabel,
+                heightField,
+                dateOfBirthLabel,
+                dateOfBirthField,
                 createButton
         );
-        Scene scene = new Scene(root, 420, 350);
+        Scene scene = new Scene(root, 400, 600);
         setScene(scene);
     }
 
     public TextField getUsernameField() {
         return usernameField;
     }
-
     public TextField getPasswordField() {
         return passwordField;
     }
-
     public TextField getEmailField() {
         return emailField;
     }
     public Button getCreateButton() {
         return createButton;
+    }
+    public TextField getWeightField() {
+        return weightField;
+    }
+    public TextField getHeightField() {
+        return heightField;
+    }
+    public TextField getDateOfBirthField() {
+        return dateOfBirthField;
     }
 }

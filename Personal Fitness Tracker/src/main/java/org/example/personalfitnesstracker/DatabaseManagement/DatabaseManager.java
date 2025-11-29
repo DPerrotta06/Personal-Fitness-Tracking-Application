@@ -43,8 +43,8 @@ public class DatabaseManager { //might be immutable?
      * Checks text boxes filled in by the user and then it will go to the
      * database to see if that user already exists
      *
-     * @param emailBox
-     * @param passwordBox
+     * @param //emailBox
+     * @param //passwordBox
      */
     public static boolean userExists(String email, byte[] hashedPw) {
         String query = "SELECT * FROM Users WHERE Email = ? AND Password = ?"; //prepared statement to act as a first line defense against SQL injections

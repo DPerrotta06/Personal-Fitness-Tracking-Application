@@ -4,16 +4,17 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class MainPageView extends Stage {
 
-    private Button nutritionButton, sleepButton, exerciseButton, goalsButton, inboxButton, settingsButton, logoutButton;
+    private Button nutritionButton, sleepButton, exerciseButton, goalsButton, inboxButton, logoutButton;
     private Label dateLabel;
-    // can properly make this a functionality later
-    // private ImageView profileImageView;
 
     public MainPageView() {
         setTitle("Fitness Tracker - Main Page");
@@ -27,83 +28,73 @@ public class MainPageView extends Stage {
         topBar.setAlignment(Pos.CENTER_LEFT);
         topBar.setPadding(new Insets(10, 20, 10, 20));
 
-        dateLabel = new Label("Saturday November 22 2025 08:44 PM");
+        // Getting current date in a specific format
+        LocalDateTime currentTime = LocalDateTime.now();
+        String pattern = "EEEE MMMM dd yyyy hh:mm a";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+        String formattedDate = currentTime.format(formatter);
+        dateLabel = new Label(formattedDate);
         dateLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
 
         topBar.getChildren().addAll(dateLabel);
         root.setTop(topBar);
 
-        // --- Center Grid layout for the main content ---
-        GridPane grid = new GridPane();
-        grid.setVgap(10);
-        grid.setHgap(10);
-        grid.setAlignment(Pos.CENTER);
-        grid.setPadding(new Insets(20));
+        // --- Center Grid layout for the main content (empty for now) ---
+        Region centerRegion = new Region();
+        root.setCenter(centerRegion);  // Empty space for charts/graphs
+
+        // --- Bottom layout for buttons ---
+        HBox bottomBar = new HBox(15);
+        bottomBar.setAlignment(Pos.CENTER);
+        bottomBar.setPadding(new Insets(20));
 
         nutritionButton = createSectionButton("Daily Calories", "0 cal");
         sleepButton = createSectionButton("Daily Water Consumption", "0 L");
         exerciseButton = createSectionButton("Daily Sleep Amount", "0 h min");
         goalsButton = createSectionButton("Goals", "Customize");
 
-        inboxButton = new Button("Check Inbox");
-        inboxButton.setStyle("""
-                -fx-background-color: #1435d1;
-                -fx-text-fill: white;
-                -fx-font-size: 15px;
-                -fx-font-weight: bold;
-                -fx-background-radius: 8;
-                -fx-padding: 10 20 10 20;
-        """);
-        inboxButton.setMaxWidth(150);
+        inboxButton = createSmallButton("Check Inbox");
+        logoutButton = createSmallButton("Logout");
 
-        settingsButton = new Button("Customize");
-        settingsButton.setStyle("""
-                -fx-background-color: #1435d1;
-                -fx-text-fill: white;
-                -fx-font-size: 15px;
-                -fx-font-weight: bold;
-                -fx-background-radius: 8;
-                -fx-padding: 10 20 10 20;
-        """);
-        settingsButton.setMaxWidth(150);
+        bottomBar.getChildren().addAll(
+                nutritionButton, sleepButton, exerciseButton, goalsButton,
+                inboxButton, logoutButton
+        );
 
-        logoutButton = new Button("Logout");
-        logoutButton.setStyle("""
-                -fx-background-color: #1435d1;
-                -fx-text-fill: white;
-                -fx-font-size: 15px;
-                -fx-font-weight: bold;
-                -fx-background-radius: 8;
-                -fx-padding: 10 20 10 20;
-        """);
-        logoutButton.setMaxWidth(150);
-
-        grid.add(nutritionButton, 0, 0);
-        grid.add(sleepButton, 1, 0);
-        grid.add(exerciseButton, 0, 1);
-        grid.add(goalsButton, 1, 1);
-        grid.add(inboxButton, 0, 2);
-        grid.add(settingsButton, 1, 2);
-        grid.add(logoutButton, 0, 3, 2, 1);
-
-        root.setCenter(grid);
+        root.setBottom(bottomBar);
 
         // --- Scene ---
-        Scene scene = new Scene(root, 700, 600);
+        Scene scene = new Scene(root, 1000, 650);
         setScene(scene);
     }
 
-    // --- Button maker to follow our format
+    // --- Button maker for larger section buttons
     private Button createSectionButton(String title, String subtitle) {
         Button button = new Button(title + "\n" + subtitle);
         button.setStyle("""
                 -fx-background-color: #1435d1;
                 -fx-text-fill: white;
-                -fx-font-size: 15px;
+                -fx-font-size: 12px;  // Smaller font size
                 -fx-font-weight: bold;
                 -fx-background-radius: 8;
-                -fx-padding: 10 20 10 20;
+                -fx-padding: 8 16 8 16;
         """);
+        button.setMaxWidth(150);
+        return button;
+    }
+
+    // --- Button maker for smaller buttons
+    private Button createSmallButton(String text) {
+        Button button = new Button(text);
+        button.setStyle("""
+                -fx-background-color: #1435d1;
+                -fx-text-fill: white;
+                -fx-font-size: 12px;  // Smaller font size
+                -fx-font-weight: bold;
+                -fx-background-radius: 8;
+                -fx-padding: 8 16 8 16;
+        """);
+        button.setMaxWidth(120);  // Smaller width
         return button;
     }
 
@@ -126,10 +117,6 @@ public class MainPageView extends Stage {
 
     public Button getInboxButton() {
         return inboxButton;
-    }
-
-    public Button getSettingsButton() {
-        return settingsButton;
     }
 
     public Button getLogoutButton() {
