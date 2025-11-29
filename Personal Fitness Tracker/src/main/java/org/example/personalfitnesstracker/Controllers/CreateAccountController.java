@@ -8,7 +8,7 @@ import org.example.personalfitnesstracker.Models.User;
 import org.example.personalfitnesstracker.Views.CreateAccountView;
 import org.example.personalfitnesstracker.Views.MainPageView;
 
-public class CreateAccountController extends BaseController {
+public class CreateAccountController extends BaseController { //DO NOT TOUCH THIS
 
     private final CreateAccountView createAccountView;
     private final DatabaseManager databaseManager;

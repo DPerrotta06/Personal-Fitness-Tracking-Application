@@ -15,8 +15,6 @@ import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.logging.FileHandler;
 import java.util.logging.SimpleFormatter;
 import javafx.collections.FXCollections;
@@ -610,7 +608,7 @@ public class DatabaseManager { //might be immutable?
             return false;
         }
     }
-    
+  
     /*public static boolean updateMuscularGoal(){
         
     }
@@ -621,7 +619,7 @@ public class DatabaseManager { //might be immutable?
 
     public static boolean updateNutrition(Nutrition nutrition) {
 
-    }
+    }*/
 
     //====================================DELETE====================================
     /**

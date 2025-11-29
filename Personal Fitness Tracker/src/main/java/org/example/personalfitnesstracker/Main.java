@@ -6,9 +6,11 @@ import org.example.personalfitnesstracker.Controllers.LoginController;
 import org.example.personalfitnesstracker.DatabaseManagement.DatabaseManager;
 import org.example.personalfitnesstracker.Views.LoginView;
 
-public class Main extends Application{
+public class Main extends Application {
+
     public static void main(String[] args) {
-        launch(args);
+        //launch(args);
+        DatabaseManager.testConnection();
     }
 
     @Override
@@ -16,5 +18,7 @@ public class Main extends Application{
         LoginView loginView = new LoginView();
         LoginController loginController = new LoginController(loginView);
         loginController.show();
+        /*MainPageView mainPageView = new MainPageView();
+        mainPageView.show();*/
     }
 }
