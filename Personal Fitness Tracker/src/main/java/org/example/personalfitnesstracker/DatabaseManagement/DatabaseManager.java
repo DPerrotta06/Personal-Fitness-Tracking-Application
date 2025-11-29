@@ -15,10 +15,14 @@ import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.FileHandler;
 import java.util.logging.SimpleFormatter;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.example.personalfitnesstracker.Factories.MuscularFactory;
 import org.example.personalfitnesstracker.Models.*;
 
 /**
@@ -33,6 +37,7 @@ public class DatabaseManager { //might be immutable?
     private static final String PW = loadDatabase.getDbPassword();
     private static final Logger logger = Logger.getLogger(DatabaseManager.class.getName());
     private final FileHandler logFile;
+    private static Map<Integer, List<Workout>> workoutCache = new HashMap<>();
 
     public DatabaseManager() throws IOException {
         this.logFile = new FileHandler("src\\logfile.log", true);
@@ -452,6 +457,9 @@ public class DatabaseManager { //might be immutable?
      * @return
      */
     public static ObservableList<Workout> displayWorkoutLogs(int userID) {
+        if (workoutCache.containsKey(userID)) { //will test this out with other queries during production
+            return FXCollections.observableArrayList(workoutCache.get(userID));
+        }
         ObservableList<Workout> workout = FXCollections.observableArrayList();
         String query = "SELECT w.*, m.TotalSets, m.TotalReps, m.TotalWeight, c.TotalDistance, c.HeartRateZone "
                 + "FROM Workouts w LEFT JOIN MuscularWorkout m ON w.WorkoutID = m.WorkoutID "
@@ -488,6 +496,7 @@ public class DatabaseManager { //might be immutable?
                     ));
                 }
             }
+            workoutCache.put(userID, workout);
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
         }
