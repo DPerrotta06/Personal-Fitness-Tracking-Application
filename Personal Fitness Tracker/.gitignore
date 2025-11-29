@@ -40,4 +40,3 @@ build/
 
 #Ignore db config
 config/db.properties
-config/

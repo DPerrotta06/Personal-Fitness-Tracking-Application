@@ -1,6 +1,6 @@
 package org.example.personalfitnesstracker.Models;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import javafx.beans.property.*;
 
 public class User {
@@ -11,9 +11,9 @@ public class User {
     private final StringProperty email;
     private final DoubleProperty weight;
     private final DoubleProperty height;
-    private final Date dateOfBirth;
+    private final LocalDate dateOfBirth;
 
-    public User(int userId, byte[] password, String email, double weight, double height, Date dateOfBirth, String username) {
+    public User(int userId, byte[] password, String email, double weight, double height, LocalDate dateOfBirth, String username) {
         this.userId = new SimpleIntegerProperty(userId);
         this.username = new SimpleStringProperty(username);
         this.password = new SimpleObjectProperty(password);
@@ -47,7 +47,7 @@ public class User {
         return height;
     }
 
-    public Date getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 }

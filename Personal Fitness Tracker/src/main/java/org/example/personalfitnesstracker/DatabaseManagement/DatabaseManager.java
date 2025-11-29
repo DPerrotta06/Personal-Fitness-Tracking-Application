@@ -6,6 +6,7 @@ package org.example.personalfitnesstracker.DatabaseManagement;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,6 +15,8 @@ import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.logging.FileHandler;
 import java.util.logging.SimpleFormatter;
 import javafx.collections.FXCollections;
@@ -61,18 +64,19 @@ public class DatabaseManager { //might be immutable?
         return false; //user doesn't exist
     }
 
+    //====================================CREATE====================================
     /**
      *
      * @param user
      */
     public static void addNewUserToDb(User user) { //LOOK OVER
-        String query = "INSERT INTO Users (UserID, Password, Email, Weight, Height, DateOfBirth, Username) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO Users (Password, Email, Weight, Height, DateOfBirth, Username) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             prepStat.setBytes(1, user.passwordProperty().get()); //inserting password
             prepStat.setString(2, user.emailProperty().get()); //inserting email
             prepStat.setDouble(3, user.weightProperty().get()); //inserting weight
             prepStat.setDouble(4, user.heightProperty().get()); //inserting height
-            prepStat.setDate(5, user.getDateOfBirth()); //inserting date of birth
+            prepStat.setDate(5, Date.valueOf(user.getDateOfBirth())); //inserting date of birth
             prepStat.setString(6, user.usernameProperty().get()); // inserting username
             prepStat.executeLargeUpdate(); //updates the table
         } catch (SQLException e) {
@@ -265,7 +269,7 @@ public class DatabaseManager { //might be immutable?
      * @param workout
      */
     public static void addNewWorkoutToDb(Workout workout) {
-        String query = "INSERT INTO Workouts (WorkoutID, WorkoutName, WorkoutDescription, WorkoutDuration, CaloriesBurned, UserID, DateStamp) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO Workouts (WorkoutName, WorkoutDescription, WorkoutDuration, CaloriesBurned, UserID, DateStamp) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             prepStat.setString(1, workout.workoutNameProperty().get());
             prepStat.setString(2, workout.workoutDescriptionProperty().get());
@@ -335,7 +339,7 @@ public class DatabaseManager { //might be immutable?
                         set.getString("Email"),
                         set.getDouble("Weight"),
                         set.getDouble("Height"),
-                        set.getDate("DateOfBirth"),
+                        set.getDate("DateOfBirth").toLocalDate(),
                         set.getString("Username")
                 ));
             }
@@ -345,6 +349,7 @@ public class DatabaseManager { //might be immutable?
         return user;
     }
 
+    //====================================READ====================================
     /**
      * Retrieve the right user via their email
      *
@@ -363,7 +368,7 @@ public class DatabaseManager { //might be immutable?
                         set.getString("Email"),
                         set.getDouble("Weight"),
                         set.getDouble("Height"),
-                        set.getDate("DateOfBirth"),
+                        set.getDate("DateOfBirth").toLocalDate(),
                         set.getString("Username")
                 ));
             }
@@ -556,6 +561,69 @@ public class DatabaseManager { //might be immutable?
         return goal;
     }
 
+    //====================================UPDATE====================================
+    /**
+     *
+     * @param user
+     * @return
+     */
+    public static boolean updateUser(User user) {
+        String query = "UPDATE Users SET Password = ?, Email = ?, Weight = ?, Height = ?, DateOfBirth = ?, Username = ? WHERE UserID = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
+            prepStat.setBytes(1, user.passwordProperty().get());
+            prepStat.setString(2, user.emailProperty().get());
+            prepStat.setDouble(3, user.weightProperty().get());
+            prepStat.setDouble(4, user.heightProperty().get());
+            return prepStat.executeUpdate() > 0;
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
+            return false;
+        }
+    }
+
+    /**
+     *
+     * @param sleep
+     * @return
+     */
+    public static boolean updateSleep(Sleep sleep) {
+        String query = "UPDATE Sleep SET SleepStart = ?, SleepEnd = ? WHERE UserID = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
+            prepStat.setTimestamp(1, Timestamp.valueOf(sleep.sleepStartProperty()));
+            prepStat.setTimestamp(2, Timestamp.valueOf(sleep.sleepEndProperty()));
+            return prepStat.executeUpdate() > 0;
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
+            return false;
+        }
+    }
+
+    public static boolean updateGoal(Goal goal) {
+        String query = "UPDATE Goal SET GoalName = ?, GoalDescription = ?, IsCompleted = ?, WHERE UserID = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
+            prepStat.setString(1, goal.goalNameProperty().get());
+            prepStat.setString(2, goal.goalDescriptionProperty().get());
+            prepStat.setBoolean(3, goal.isCompletedProperty().get());
+            return prepStat.executeUpdate() > 0;
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
+            return false;
+        }
+    }
+    
+    /*public static boolean updateMuscularGoal(){
+        
+    }
+
+    public static boolean updateWorkout(Workout workout) {
+
+    }
+
+    public static boolean updateNutrition(Nutrition nutrition) {
+
+    }
+
+    //====================================DELETE====================================
     /**
      * REMOVE THIS LATER ONLY USE IS TO TEST CONNECTION!!! DELETE AT
      * PRODUCTION!!!

@@ -1,10 +1,8 @@
 package org.example.personalfitnesstracker.Controllers;
 
 import java.io.IOException;
-import java.sql.Date;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-
+import java.time.DateTimeException;
+import java.time.LocalDate;
 import org.example.personalfitnesstracker.DatabaseManagement.DatabaseManager;
 import org.example.personalfitnesstracker.Models.User;
 import org.example.personalfitnesstracker.Views.CreateAccountView;
@@ -46,11 +44,11 @@ public class CreateAccountController extends BaseController {
             double height = Double.parseDouble(heightText);
             String dateOfBirthText = createAccountView.getDateOfBirthField().getText();
             // Format Date of Birth (yyyy-MM-dd)
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            Date dob = null;
+            //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            LocalDate dob;
             try {
-                dob = (Date) dateFormat.parse(dateOfBirthText);
-            } catch (ParseException e) {
+                dob = LocalDate.parse(dateOfBirthText);
+            } catch (DateTimeException e) {
                 e.printStackTrace();
                 log("Invalid Date format. Please use yyyy-MM-dd.");
                 return;
@@ -83,7 +81,7 @@ public class CreateAccountController extends BaseController {
             String email,
             double weight,
             double height,
-            Date dateOfBirth,
+            LocalDate dateOfBirth,
             String username) {
 
         if (isNullOrEmpty(username) || password.length == 0 || isNullOrEmpty(email)) {
