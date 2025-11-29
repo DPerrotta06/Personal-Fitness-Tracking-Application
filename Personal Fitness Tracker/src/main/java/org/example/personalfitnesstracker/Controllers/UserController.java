@@ -25,7 +25,7 @@ public class UserController extends BaseController {
      *
      * @return
      */
-    public ObservableList<User> getUsers() {
-        return DatabaseManager.getUserByEmail();
+    public ObservableList<User> getUsers(String email) {
+        return DatabaseManager.getUserByEmail(email);
     }
 }

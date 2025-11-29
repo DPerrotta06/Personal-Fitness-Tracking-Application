@@ -353,11 +353,12 @@ public class DatabaseManager { //might be immutable?
      *
      * @return
      */
-    public static ObservableList<User> getUserByEmail() {
+    public static ObservableList<User> getUserByEmail(String email) {
         ObservableList<User> user = FXCollections.observableArrayList();
         String query = "SELECT * FROM Users WHERE Email = ?";
         try (Connection conn = DriverManager.getConnection(URL, USER, PW)) {
             PreparedStatement prepStat = conn.prepareStatement(query);
+            prepStat.setString(1, email);
             ResultSet set = prepStat.executeQuery();
             while (set.next()) {
                 user.add(new User(

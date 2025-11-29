@@ -161,7 +161,4 @@ public class CreateAccountView extends Stage {
     public TextField getDateOfBirthField() {
         return dateOfBirthField;
     }
-    public Button getCreateAccountButton() {
-        return createButton;
-    }
 }
