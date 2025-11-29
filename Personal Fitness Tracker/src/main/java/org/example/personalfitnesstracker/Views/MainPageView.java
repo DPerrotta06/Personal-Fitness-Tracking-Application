@@ -10,7 +10,7 @@ import javafx.stage.Stage;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
+//---------------------------PLACE HOLDER FOR NOW NEED TO MAKE THE REST OF THE WINDOWS USING SCENE BUILDER AND FXML---------------------------
 public class MainPageView extends Stage {
 
     private Button nutritionButton, sleepButton, exerciseButton, goalsButton, inboxButton, logoutButton;
