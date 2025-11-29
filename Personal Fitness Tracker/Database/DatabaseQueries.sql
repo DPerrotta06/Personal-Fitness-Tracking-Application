@@ -8,13 +8,12 @@ create table Users(
     Weight decimal(10,2) not null,
     Height decimal(10,2) not null,
     DateOfBirth date not null
-    --added username attribute
 );
 
 create table Sleep(
     SleepSessionID int AUTO_INCREMENT primary key not null,
-    SleepStart datetime not null, --changed to timestamp
-    SleepEnd datetime not null, --changed to timestamp
+    SleepStart datetime not null,
+    SleepEnd datetime not null,
     UserID int,
     constraint fk_sleep_user_id foreign key (UserID) references Users(UserID)
 );
@@ -61,7 +60,7 @@ create table Workouts(
     WorkoutID int AUTO_INCREMENT primary key not null,
     WorkoutName varchar(32) not null,
     WorkoutDescription varchar(100),
-    WorkoutDuration int not null, --changed to a decimal
+    WorkoutDuration int not null,
     CaloriesBurned int not null,
     UserID int not null,
     DateStamp date not null,

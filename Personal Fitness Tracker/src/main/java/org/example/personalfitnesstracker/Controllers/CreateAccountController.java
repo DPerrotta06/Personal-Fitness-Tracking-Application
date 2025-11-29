@@ -1,9 +1,14 @@
 package org.example.personalfitnesstracker.Controllers;
 
+import java.io.IOException;
 import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 import org.example.personalfitnesstracker.DatabaseManagement.DatabaseManager;
 import org.example.personalfitnesstracker.Models.User;
 import org.example.personalfitnesstracker.Views.CreateAccountView;
+import org.example.personalfitnesstracker.Views.MainPageView;
 
 public class CreateAccountController extends BaseController {
 
@@ -30,7 +35,7 @@ public class CreateAccountController extends BaseController {
             String username = createAccountView.getUsernameField().getText();
             String email = createAccountView.getEmailField().getText();
             if (!email.contains("@")) {
-                System.out.println("Invalid email format.");
+                log("Invalid email format.");
                 return;
             }
             String passwordText = createAccountView.getPasswordField().getText();
@@ -40,21 +45,24 @@ public class CreateAccountController extends BaseController {
             double weight = Double.parseDouble(weightText);
             double height = Double.parseDouble(heightText);
             String dateOfBirthText = createAccountView.getDateOfBirthField().getText();
-
             // Format Date of Birth (yyyy-MM-dd)
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date dob = null;
             try {
-                dob = dateFormat.parse(dateOfBirthText);
+                dob = (Date) dateFormat.parse(dateOfBirthText);
             } catch (ParseException e) {
                 e.printStackTrace();
-                System.out.println("Invalid Date format. Please use yyyy-MM-dd.");
+                log("Invalid Date format. Please use yyyy-MM-dd.");
                 return;
             }
-
-            User newUser = new User(0, username, password, email, weight, height, (java.sql.Date) dob);
-            DatabaseManager.addNewUserToDb(newUser);
-            createAccountView.close();
+            createUser(0, password, email, weight, height, dob, username);
+            // When Create Account Button is clicked
+            createAccountView.getCreateAccountButton().setOnAction(e -> {
+                MainPageView mainPageView = new MainPageView();
+                MainPageController mainPageController = new MainPageController(mainPageView);
+                mainPageController.show();
+                createAccountView.close();
+            });
         });
     }
 

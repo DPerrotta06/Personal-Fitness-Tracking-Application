@@ -136,7 +136,7 @@ public class CreateAccountView extends Stage {
                 dateOfBirthField,
                 createButton
         );
-        Scene scene = new Scene(root, 400, 600);
+        Scene scene = new Scene(root, 400, 550);
         setScene(scene);
     }
 
@@ -160,5 +160,8 @@ public class CreateAccountView extends Stage {
     }
     public TextField getDateOfBirthField() {
         return dateOfBirthField;
+    }
+    public Button getCreateAccountButton() {
+        return createButton;
     }
 }

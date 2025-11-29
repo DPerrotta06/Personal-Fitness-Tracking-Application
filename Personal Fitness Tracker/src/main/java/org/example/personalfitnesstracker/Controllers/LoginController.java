@@ -4,7 +4,7 @@ import org.example.personalfitnesstracker.Views.CreateAccountView;
 import org.example.personalfitnesstracker.Controllers.LoginController;
 import org.example.personalfitnesstracker.Views.LoginView;
 
-public class LoginController {
+public class LoginController extends BaseController{
 
     private final LoginView loginView;
     private CreateAccountView createAccountView;

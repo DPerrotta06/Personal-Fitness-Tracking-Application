@@ -9,7 +9,6 @@ import org.example.personalfitnesstracker.Views.LoginView;
 public class Main extends Application{
     public static void main(String[] args) {
         launch(args);
-        //DatabaseManager.testConnection(); //FOR CONNECTION TESTING PURPOSES DELETE LATER!!!
     }
 
     @Override
