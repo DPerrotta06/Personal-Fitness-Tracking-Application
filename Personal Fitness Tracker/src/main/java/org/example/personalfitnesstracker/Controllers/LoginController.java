@@ -7,20 +7,13 @@ import org.example.personalfitnesstracker.Views.CreateAccountView;
 import org.example.personalfitnesstracker.Views.LoginView;
 import org.example.personalfitnesstracker.Views.MainPageView;
 
-import java.io.IOException;
-
-public class LoginController extends BaseController{
+public class LoginController extends BaseController {
 
     private final LoginView loginView;
     private CreateAccountView createAccountView;
 
     public LoginController(LoginView loginView) {
         this.loginView = loginView;
-        try {
-            DatabaseManager databaseManager = new DatabaseManager();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
         setupHandlers();
     }
 
@@ -29,26 +22,25 @@ public class LoginController extends BaseController{
     }
 
     private void setupHandlers() {
-
         loginView.getLoginButton().setOnAction(event -> {
             String email = loginView.getEmailField().getText().trim();
-            byte[] password = loginView.getPasswordField().getText().trim().getBytes();
+            String password = loginView.getPasswordField().getText().trim();
 
-            if (DatabaseManager.userExists(email, password)) {
+            if (DatabaseManager.userExists(email, password.getBytes())) {
+                System.out.println("Login successful!");
+
                 User user = getUserDataByEmail(email);
                 if (user != null) {
                     MainPageView mainPageView = new MainPageView();
                     MainPageController mainPageController = new MainPageController(mainPageView);
                     mainPageController.show();
+                    loginView.close();
                 }
-            }
-            else {
-                System.out.println("User " + email + " does not exist");
+            } else {
+                System.out.println("User " + email + " does not exist or incorrect password.");
             }
         });
 
-
-        // When create account link is clicked
         loginView.getCreateAccountLink().setOnAction(e -> {
             createAccountView = new CreateAccountView();
             CreateAccountController createAccountController = new CreateAccountController(createAccountView);
@@ -57,13 +49,10 @@ public class LoginController extends BaseController{
         });
     }
 
-    // looping through db until email of user is found
     private User getUserDataByEmail(String email) {
-        ObservableList<User> users = DatabaseManager.getUserByEmail();
-        for (User user : users) {
-            if (user.emailProperty().equals(email)) {
-                return user;
-            }
+        ObservableList<User> users = DatabaseManager.getUserByEmail(email);
+        if (!users.isEmpty()) {
+            return users.get(0);
         }
         System.out.println("User not found");
         return null;
