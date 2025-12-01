@@ -32,29 +32,42 @@ public class LoginView extends Stage {
                 -fx-font-weight: bold;
         """);
 
-        // --- Email ---
+        // --- Email Row ---
+        HBox emailRow = new HBox(10);
+        emailRow.setAlignment(Pos.CENTER);
+
         Label emailLabel = new Label("EMAIL:");
-        emailLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
+        emailLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial; -fx-font-weight: bold;");
 
         emailField = new TextField();
         emailField.setPromptText("Enter email");
+        emailField.setMinWidth(190);
         emailField.setMaxWidth(220);
         emailField.setStyle("""
-                -fx-background-radius: 10;
-                -fx-padding: 8;
+        -fx-background-radius: 10;
+        -fx-padding: 8;
         """);
 
-        // --- Password ---
+        emailRow.getChildren().addAll(emailLabel, emailField);
+
+
+
+        // --- Password Row ---
+        HBox passwordRow = new HBox(10);
+        passwordRow.setAlignment(Pos.CENTER);
+
         Label passwordLabel = new Label("PASSWORD:");
-        passwordLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
+        passwordLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial; -fx-font-weight: bold;");
 
         passwordField = new PasswordField();
         passwordField.setPromptText("Enter password");
         passwordField.setMaxWidth(220);
         passwordField.setStyle("""
-                -fx-background-radius: 10;
-                -fx-padding: 8;
+        -fx-background-radius: 10;
+        -fx-padding: 8;
         """);
+
+        passwordRow.getChildren().addAll(passwordLabel, passwordField);
 
         // --- Create Account Link ---
         createAccountLink = new Hyperlink("Don't have an account? Create one.");
@@ -75,8 +88,8 @@ public class LoginView extends Stage {
         // --- Adding everything ---
         root.getChildren().addAll(
                 title,
-                emailLabel, emailField,
-                passwordLabel, passwordField,
+                emailRow,
+                passwordRow,
                 createAccountLink,
                 loginButton
         );

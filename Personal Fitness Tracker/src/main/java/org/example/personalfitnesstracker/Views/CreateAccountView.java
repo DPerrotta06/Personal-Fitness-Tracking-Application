@@ -7,6 +7,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -18,7 +19,7 @@ public class CreateAccountView extends Stage {
     private final TextField heightField;
     private final TextField dateOfBirthField;
     private final Button createButton;
-
+//-----------------------NEED TO ALIGN HBOXES-----------------------
     public CreateAccountView() {
         setTitle("Create Account");
         // --- Main Layout ---
@@ -38,6 +39,8 @@ public class CreateAccountView extends Stage {
                 """);
 
         // --- Username ---
+        HBox usernameRow = new HBox(10);
+        usernameRow.setAlignment(Pos.CENTER);
         Label usernameLabel = new Label("USERNAME:");
         usernameLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
 
@@ -49,7 +52,10 @@ public class CreateAccountView extends Stage {
                 -fx-padding: 6;
         """);
 
+        usernameRow.getChildren().addAll(usernameLabel, usernameField);
         // --- Email ---
+        HBox emailRow = new HBox(10);
+        emailRow.setAlignment(Pos.CENTER);
         Label emailLabel = new Label("EMAIL:");
         emailLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
 
@@ -61,7 +67,11 @@ public class CreateAccountView extends Stage {
                 -fx-padding: 6;
                 """);
 
+        emailRow.getChildren().addAll(emailLabel, emailField);
+
         // --- Password ---
+        HBox passwordRow = new HBox(10);
+        passwordRow.setAlignment(Pos.CENTER);
         Label passwordLabel = new Label("PASSWORD:");
         passwordLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
 
@@ -73,7 +83,10 @@ public class CreateAccountView extends Stage {
                 -fx-padding: 6;
                 """);
 
+        passwordRow.getChildren().addAll(passwordLabel, passwordField);
         // --- Weight ---
+        HBox weightRow = new HBox(10);
+        weightRow.setAlignment(Pos.CENTER);
         Label weightLabel = new Label("WEIGHT:");
         weightLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
 
@@ -85,7 +98,10 @@ public class CreateAccountView extends Stage {
                 -fx-padding: 6;
         """);
 
+        weightRow.getChildren().addAll(weightLabel, weightField);
         // --- Height ---
+        HBox heightRow = new HBox(10);
+        heightRow.setAlignment(Pos.CENTER);
         Label heightLabel = new Label("HEIGHT:");
         heightLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
 
@@ -97,7 +113,10 @@ public class CreateAccountView extends Stage {
                 -fx-padding: 6;
         """);
 
+        heightRow.getChildren().addAll(heightLabel, heightField);
         // --- Date of birth ---
+        HBox dateOfBirthRow = new HBox(10);
+        dateOfBirthRow.setAlignment(Pos.CENTER);
         Label dateOfBirthLabel = new Label("DATE OF BIRTH:");
         dateOfBirthLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
 
@@ -109,6 +128,7 @@ public class CreateAccountView extends Stage {
                 -fx-padding: 6;
         """);
 
+        dateOfBirthRow.getChildren().addAll(dateOfBirthLabel, dateOfBirthField);
         // --- Create Account button ---
         createButton = new Button("Create Account");
         createButton.setStyle("""
@@ -122,21 +142,15 @@ public class CreateAccountView extends Stage {
 
         root.getChildren().addAll(
                 title,
-                usernameLabel,
-                usernameField,
-                emailLabel,
-                emailField,
-                passwordLabel,
-                passwordField,
-                weightLabel,
-                weightField,
-                heightLabel,
-                heightField,
-                dateOfBirthLabel,
-                dateOfBirthField,
+                weightRow,
+                heightRow,
+                dateOfBirthRow,
+                usernameRow,
+                emailRow,
+                passwordRow,
                 createButton
         );
-        Scene scene = new Scene(root, 400, 550);
+        Scene scene = new Scene(root, 350, 400);
         setScene(scene);
     }
 

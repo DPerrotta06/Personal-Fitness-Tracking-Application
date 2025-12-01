@@ -77,7 +77,7 @@ public class MainPageView extends Stage {
                 -fx-font-size: 12px;  // Smaller font size
                 -fx-font-weight: bold;
                 -fx-background-radius: 8;
-                -fx-padding: 8 16 8 16;
+                -fx-padding: 8 16 8 16;v
         """);
         button.setMaxWidth(150);
         return button;
