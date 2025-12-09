@@ -27,13 +27,11 @@ public class SleepController extends BaseController {
             int userId) {
 
         if (sleepStart == null || sleepEnd == null || sleepEnd.isBefore(sleepStart)) {
-            log("Cannot add sleep session: invalid dates.");
             return null;
         }
 
         Sleep sleep = new Sleep(sleepSessionId, sleepStart, sleepEnd, userId);
         sleepSessions.add(sleep);
-        log("Sleep session added for user " + userId);
         return sleep;
     }
 }

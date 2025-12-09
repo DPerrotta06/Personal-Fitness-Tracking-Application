@@ -22,7 +22,6 @@ import java.util.logging.FileHandler;
 import java.util.logging.SimpleFormatter;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import org.example.personalfitnesstracker.Factories.MuscularFactory;
 import org.example.personalfitnesstracker.Models.*;
 
 /**
@@ -37,8 +36,11 @@ public class DatabaseManager { //might be immutable?
     private static final String PW = loadDatabase.getDbPassword();
     private static final Logger logger = Logger.getLogger(DatabaseManager.class.getName());
     private final FileHandler logFile;
-    private static Map<Integer, List<Workout>> workoutCache = new HashMap<>();
 
+    /**
+     * 
+     * @throws IOException 
+     */
     public DatabaseManager() throws IOException {
         this.logFile = new FileHandler("src\\logfile.log", true);
         this.logFile.setFormatter(new SimpleFormatter());
@@ -329,14 +331,21 @@ public class DatabaseManager { //might be immutable?
         }
     }
 
-    public static ObservableList<User> getUserById() {
-        ObservableList<User> user = FXCollections.observableArrayList();
+    //====================================READ====================================
+    /**
+     * Retrieve the correct user by their ID
+     *
+     * @param userId
+     * @return
+     */
+    public static User getUserById(int userId) {
+        User user = null;
         String query = "SELECT * FROM Users WHERE UserID = ?";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PW)) {
-            PreparedStatement prepStat = conn.prepareStatement(query);
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
+            prepStat.setInt(1, userId);
             ResultSet set = prepStat.executeQuery();
-            while (set.next()) {
-                user.add(new User(
+            if (set.next()) {
+                user = new User(
                         set.getInt("UserID"),
                         set.getBytes("Password"),
                         set.getString("Email"),
@@ -344,7 +353,7 @@ public class DatabaseManager { //might be immutable?
                         set.getDouble("Height"),
                         set.getDate("DateOfBirth").toLocalDate(),
                         set.getString("Username")
-                ));
+                );
             }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
@@ -352,21 +361,21 @@ public class DatabaseManager { //might be immutable?
         return user;
     }
 
-    //====================================READ====================================
     /**
-     * Retrieve the right user via their email
+     * Retrieve the right user via their email and password. This returns the
+     * corresponding user.
      *
      * @return
      */
-    public static ObservableList<User> getUserByEmail(String email) {
-        ObservableList<User> user = FXCollections.observableArrayList();
-        String query = "SELECT * FROM Users WHERE Email = ?";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PW)) {
-            PreparedStatement prepStat = conn.prepareStatement(query);
+    public static User getUserByEmailAndPw(String email, byte[] password) {
+        User user = null;
+        String query = "SELECT UserID FROM Users WHERE Email = ? AND Password = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
             prepStat.setString(1, email);
+            prepStat.setBytes(2, password);
             ResultSet set = prepStat.executeQuery();
-            while (set.next()) {
-                user.add(new User(
+            if (set.next()) {
+                user = new User(
                         set.getInt("UserID"),
                         set.getBytes("Password"),
                         set.getString("Email"),
@@ -374,7 +383,7 @@ public class DatabaseManager { //might be immutable?
                         set.getDouble("Height"),
                         set.getDate("DateOfBirth").toLocalDate(),
                         set.getString("Username")
-                ));
+                );
             }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
@@ -457,9 +466,6 @@ public class DatabaseManager { //might be immutable?
      * @return
      */
     public static ObservableList<Workout> displayWorkoutLogs(int userID) {
-        if (workoutCache.containsKey(userID)) { //will test this out with other queries during production
-            return FXCollections.observableArrayList(workoutCache.get(userID));
-        }
         ObservableList<Workout> workout = FXCollections.observableArrayList();
         String query = "SELECT w.*, m.TotalSets, m.TotalReps, m.TotalWeight, c.TotalDistance, c.HeartRateZone "
                 + "FROM Workouts w LEFT JOIN MuscularWorkout m ON w.WorkoutID = m.WorkoutID "
@@ -496,7 +502,6 @@ public class DatabaseManager { //might be immutable?
                     ));
                 }
             }
-            workoutCache.put(userID, workout);
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
         }
@@ -807,6 +812,27 @@ public class DatabaseManager { //might be immutable?
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error deleting user.", e);
         }
+    }
+
+    //====================================Parallel Processing====================================
+    /**
+     * Making threads to load all user data in parallel
+     *
+     * @param userId
+     */
+    public static void loadAllUserData(int userId) {
+        new Thread(() -> {
+            displaySleepingLogs(userId);
+        }).start();
+        new Thread(() -> {
+            displayNutritionLogs(userId);
+        }).start();
+        new Thread(() -> {
+            displayWorkoutLogs(userId);
+        }).start();
+        new Thread(() -> {
+            displayGoals(userId);
+        }).start();
     }
 
     /**

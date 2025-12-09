@@ -9,10 +9,10 @@ import javafx.stage.Stage;
 
 public class LoginView extends Stage {
 
-    private TextField emailField;
-    private PasswordField passwordField;
-    private Button loginButton;
-    private Hyperlink createAccountLink;
+    private final TextField emailField;
+    private final PasswordField passwordField;
+    private final Button loginButton;
+    private final Hyperlink createAccountLink;
 
     public LoginView() {
         setTitle("Fitness Tracker - Login");

@@ -18,6 +18,9 @@ public class GoalController extends BaseController {
 
     private final ObservableList<Goal> goals;
 
+    /**
+     * Constructor
+     */
     public GoalController() {
         this.bulkingGoalFactory = new BulkingGoalFactory();
         this.cuttingGoalFactory = new CuttingGoalFactory();
@@ -26,18 +29,33 @@ public class GoalController extends BaseController {
         this.goals = FXCollections.observableArrayList();
     }
 
+    /**
+     *
+     * @return
+     */
     public ObservableList<Goal> getGoals() {
         return goals;
     }
 
-    // BULKING GOAL
+    /**
+     * Adding a bulking goal to the DB
+     *
+     * @param goalId
+     * @param goalName
+     * @param goalDescription
+     * @param isCompleted
+     * @param userId
+     * @param targetWeightGain
+     * @param targetDailyCaloricIntake
+     * @return
+     */
     public Goal addBulkingGoal(int goalId,
-                               String goalName,
-                               String goalDescription,
-                               boolean isCompleted,
-                               int userId,
-                               double targetWeightGain,
-                               int targetDailyCaloricIntake) {
+            String goalName,
+            String goalDescription,
+            boolean isCompleted,
+            int userId,
+            double targetWeightGain,
+            int targetDailyCaloricIntake) {
 
         GoalAttributeData attr = new GoalAttributeData(
                 goalId,
@@ -58,18 +76,28 @@ public class GoalController extends BaseController {
 
         Goal goal = bulkingGoalFactory.createNewGoal(attr);
         goals.add(goal);
-        log("Bulking goal added for user " + userId);
         return goal;
     }
 
-    // CUTTING GOAL
+    /**
+     * Adding a cutting goal to the DB
+     *
+     * @param goalId
+     * @param goalName
+     * @param goalDescription
+     * @param isCompleted
+     * @param userId
+     * @param targetWeightLoss
+     * @param targetCaloricDeficit
+     * @return
+     */
     public Goal addCuttingGoal(int goalId,
-                               String goalName,
-                               String goalDescription,
-                               boolean isCompleted,
-                               int userId,
-                               double targetWeightLoss,
-                               int targetCaloricDeficit) {
+            String goalName,
+            String goalDescription,
+            boolean isCompleted,
+            int userId,
+            double targetWeightLoss,
+            int targetCaloricDeficit) {
 
         GoalAttributeData attr = new GoalAttributeData(
                 goalId,
@@ -90,18 +118,28 @@ public class GoalController extends BaseController {
 
         Goal goal = cuttingGoalFactory.createNewGoal(attr);
         goals.add(goal);
-        log("Cutting goal added for user " + userId);
         return goal;
     }
 
-    // CARDIO GOAL
+    /**
+     * Adding a cardio goal to the DB
+     *
+     * @param goalId
+     * @param goalName
+     * @param goalDescription
+     * @param isCompleted
+     * @param userId
+     * @param targetRestingHeartRate
+     * @param maxDistance
+     * @return
+     */
     public Goal addCardioGoal(int goalId,
-                              String goalName,
-                              String goalDescription,
-                              boolean isCompleted,
-                              int userId,
-                              int targetRestingHeartRate,
-                              double maxDistance) {
+            String goalName,
+            String goalDescription,
+            boolean isCompleted,
+            int userId,
+            int targetRestingHeartRate,
+            double maxDistance) {
 
         GoalAttributeData attr = new GoalAttributeData(
                 goalId,
@@ -122,19 +160,30 @@ public class GoalController extends BaseController {
 
         Goal goal = cardioGoalFactory.createNewGoal(attr);
         goals.add(goal);
-        log("Cardio goal added for user " + userId);
         return goal;
     }
 
-    // MUSCULAR GOAL
+    /**
+     * Adding a muscular goal to the DB
+     *
+     * @param goalId
+     * @param goalName
+     * @param goalDescription
+     * @param isCompleted
+     * @param userId
+     * @param heaviestLift
+     * @param maxRepCount
+     * @param maxSetsCount
+     * @return
+     */
     public Goal addMuscularGoal(int goalId,
-                                String goalName,
-                                String goalDescription,
-                                boolean isCompleted,
-                                int userId,
-                                int heaviestLift,
-                                int maxRepCount,
-                                int maxSetsCount) {
+            String goalName,
+            String goalDescription,
+            boolean isCompleted,
+            int userId,
+            int heaviestLift,
+            int maxRepCount,
+            int maxSetsCount) {
 
         GoalAttributeData attr = new GoalAttributeData(
                 goalId,
@@ -155,7 +204,6 @@ public class GoalController extends BaseController {
 
         Goal goal = muscularGoalFactory.createNewGoal(attr);
         goals.add(goal);
-        log("Muscular goal added for user " + userId);
         return goal;
     }
 }
