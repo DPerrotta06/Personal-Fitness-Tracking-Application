@@ -7,14 +7,17 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 //---------------------------PLACE HOLDER FOR NOW NEED TO MAKE THE REST OF THE WINDOWS USING SCENE BUILDER AND FXML---------------------------
 public class MainPageView extends Stage {
 
-    private Button nutritionButton, sleepButton, exerciseButton, goalsButton, inboxButton, logoutButton;
-    private Label dateLabel;
+    private final Button nutritionButton;
+    private final Button sleepButton;
+    private final Button exerciseButton;
+    private final Button goalsButton;
+    private final Button inboxButton;
+    private final Button logoutButton;
 
     public MainPageView() {
         setTitle("Fitness Tracker - Main Page");
@@ -33,7 +36,7 @@ public class MainPageView extends Stage {
         String pattern = "EEEE MMMM dd yyyy hh:mm a";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
         String formattedDate = currentTime.format(formatter);
-        dateLabel = new Label(formattedDate);
+        Label dateLabel = new Label(formattedDate);
         dateLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
 
         topBar.getChildren().addAll(dateLabel);
@@ -77,7 +80,7 @@ public class MainPageView extends Stage {
                 -fx-font-size: 12px;  // Smaller font size
                 -fx-font-weight: bold;
                 -fx-background-radius: 8;
-                -fx-padding: 8 16 8 16;v
+                -fx-padding: 8 16 8 16;
         """);
         button.setMaxWidth(150);
         return button;
