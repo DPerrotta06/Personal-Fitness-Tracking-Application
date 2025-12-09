@@ -37,7 +37,7 @@ public class MainPageView extends Stage {
         String pattern = "EEEE MMMM dd yyyy hh:mm a";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
         String formattedDate = currentTime.format(formatter);
-        dateLabel = new Label(formattedDate);
+        Label dateLabel = new Label(formattedDate);
         dateLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
 
         topBar.getChildren().addAll(dateLabel);
@@ -81,7 +81,7 @@ public class MainPageView extends Stage {
                 -fx-font-size: 12px;  // Smaller font size
                 -fx-font-weight: bold;
                 -fx-background-radius: 8;
-                -fx-padding: 8 16 8 16;v
+                -fx-padding: 8 16 8 16;
         """);
         button.setMaxWidth(150);
         return button;
