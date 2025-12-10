@@ -12,6 +12,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.util.LinkedHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.Timestamp;
@@ -22,7 +24,6 @@ import java.util.logging.FileHandler;
 import java.util.logging.SimpleFormatter;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import org.example.personalfitnesstracker.Factories.MuscularFactory;
 import org.example.personalfitnesstracker.Models.*;
 
 /**
@@ -72,20 +73,60 @@ public class DatabaseManager { //might be immutable?
      *
      * @param user
      */
-    public static void addNewUserToDb(User user) { //LOOK OVER
+    public static void addNewUserToDb(User user) {
         String query = "INSERT INTO Users (Password, Email, Weight, Height, DateOfBirth, Username) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            prepStat.setBytes(1, user.passwordProperty().get()); //inserting password
-            prepStat.setString(2, user.emailProperty().get()); //inserting email
-            prepStat.setDouble(3, user.weightProperty().get()); //inserting weight
-            prepStat.setDouble(4, user.heightProperty().get()); //inserting height
-            prepStat.setDate(5, Date.valueOf(user.getDateOfBirth())); //inserting date of birth
-            prepStat.setString(6, user.usernameProperty().get()); // inserting username
-            prepStat.executeLargeUpdate(); //updates the table
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW);
+             PreparedStatement prepStat = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+
+            prepStat.setBytes(1, user.passwordProperty().get());
+            prepStat.setString(2, user.emailProperty().get());
+            prepStat.setDouble(3, user.weightProperty().get());
+            prepStat.setDouble(4, user.heightProperty().get());
+            prepStat.setDate(5, Date.valueOf(user.getDateOfBirth()));
+            prepStat.setString(6, user.usernameProperty().get());
+
+            prepStat.executeUpdate();
+
+            ResultSet rs = prepStat.getGeneratedKeys();
+            if (rs.next()) {
+                int generatedId = rs.getInt(1);
+                user.userIdProperty().set(generatedId);
+
+                logger.info("Created new user with ID = " + generatedId);
+            }
+
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
+            logger.log(Level.SEVERE, "Error inserting new user", e);
         }
     }
+
+
+    public static void addEntry(Entry entry) {
+
+        String sql = """
+        INSERT INTO Entries (UserID, EntryType, Value, Notes, EntryTimestamp)
+        VALUES (?, ?, ?, ?, ?)
+    """;
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, entry.getUserId());
+            ps.setString(2, entry.getEntryType());
+            ps.setDouble(3, entry.getValue());
+            ps.setString(4, entry.getNotes());
+            ps.setTimestamp(5, java.sql.Timestamp.valueOf(entry.getEntryTimestamp()));
+
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
 
     /**
      * Logs a new sleep session from the view and controller and stores it into
@@ -568,6 +609,121 @@ public class DatabaseManager { //might be immutable?
         }
         return goal;
     }
+
+    public static double getDailyCalories(int userId) {
+        String sql = """
+        SELECT SUM(Value)
+        FROM Entries
+        WHERE UserID = ? AND EntryType = 'Calories'
+          AND DATE(EntryTimestamp) = CURDATE();
+    """;
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) return rs.getDouble(1);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+
+
+    public static double getDailyWater(int userId) {
+        String sql = """
+        SELECT SUM(Value)
+        FROM Entries
+        WHERE UserID = ? AND EntryType = 'Water'
+          AND DATE(EntryTimestamp) = CURDATE();
+    """;
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) return rs.getDouble(1);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+
+
+    public static double[] getDailySleep(int userId) {
+
+        String sql = """
+        SELECT Value
+        FROM Entries
+        WHERE UserID = ? AND EntryType = 'Sleep'
+          AND DATE(EntryTimestamp) = CURDATE();
+    """;
+
+        double totalHours = 0;
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                totalHours += rs.getDouble(1);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        int hours = (int) totalHours;
+        int minutes = (int) ((totalHours - hours) * 60);
+
+        return new double[]{hours, minutes};
+    }
+
+
+
+    public static Map<LocalDate, Double> getWeeklyCalories(int userId) {
+
+        String sql = """
+        SELECT DATE(EntryTimestamp), SUM(Value)
+        FROM Entries
+        WHERE UserID = ?
+          AND EntryType = 'Calories'
+          AND EntryTimestamp >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+        GROUP BY DATE(EntryTimestamp)
+        ORDER BY DATE(EntryTimestamp);
+    """;
+
+        Map<LocalDate, Double> data = new LinkedHashMap<>();
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                data.put(rs.getDate(1).toLocalDate(), rs.getDouble(2));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return data;
+    }
+
+
 
     //====================================UPDATE====================================
     /**

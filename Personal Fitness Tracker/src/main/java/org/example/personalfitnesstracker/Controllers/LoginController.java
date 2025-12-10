@@ -1,11 +1,16 @@
 package org.example.personalfitnesstracker.Controllers;
 
 import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import org.example.personalfitnesstracker.DatabaseManagement.DatabaseManager;
 import org.example.personalfitnesstracker.Models.User;
 import org.example.personalfitnesstracker.Views.CreateAccountView;
 import org.example.personalfitnesstracker.Views.LoginView;
-import org.example.personalfitnesstracker.Views.MainPageView;
+
+import java.io.IOException;
 
 public class LoginController extends BaseController {
 
@@ -23,23 +28,45 @@ public class LoginController extends BaseController {
 
     private void setupHandlers() {
         loginView.getLoginButton().setOnAction(event -> {
+
             String email = loginView.getEmailField().getText().trim();
             String password = loginView.getPasswordField().getText().trim();
 
             if (DatabaseManager.userExists(email, password.getBytes())) {
-                System.out.println("Login successful!");
+                showInfo("INFO", "Login Successful!");
+                log("User " + email + " logged in!");
 
                 User user = getUserDataByEmail(email);
-                if (user != null) {
-                    MainPageView mainPageView = new MainPageView();
-                    MainPageController mainPageController = new MainPageController(mainPageView);
-                    mainPageController.show();
-                    loginView.close();
+
+                 if (user != null) {
+
+                    try {
+                        FXMLLoader loader = new FXMLLoader(
+                                getClass().getResource("/org/example/personalfitnesstracker/Views/MainPageView.fxml")
+                        );
+                        Parent root = loader.load();
+
+                        MainPageController controller = loader.getController();
+                        controller.setUser(user);
+
+                        Stage stage = new Stage();
+                        stage.setScene(new Scene(root));
+                        stage.setTitle("Fitness Tracker - Main Page");
+                        stage.show();
+
+                        loginView.close();
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
+
             } else {
-                System.out.println("User " + email + " does not exist or incorrect password.");
+                showError("ERROR", "User " + email + " does not exist or incorrect password.");
+                log("User " + email + " does not exist or incorrect password.");
             }
         });
+
 
         loginView.getCreateAccountLink().setOnAction(e -> {
             createAccountView = new CreateAccountView();
@@ -54,7 +81,8 @@ public class LoginController extends BaseController {
         if (!users.isEmpty()) {
             return users.get(0);
         }
-        System.out.println("User not found");
+        showError("ERROR", "User " + email + " does not exist");
+        log("User " + email + " does not exist");
         return null;
     }
 }

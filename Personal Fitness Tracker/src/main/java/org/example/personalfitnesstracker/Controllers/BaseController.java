@@ -2,11 +2,20 @@ package org.example.personalfitnesstracker.Controllers;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.DialogPane;
+
+import java.io.IOException;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 /**
- * Base controller with small helper methods.
+ * Base controller with helper methods.
  */
 public abstract class BaseController {
+
+    private static final Logger logger = Logger.getLogger(BaseController.class.getName());
+    private static FileHandler fileHandler;
 
     protected boolean isNullOrEmpty(String value) {
         return value == null || value.trim().isEmpty();
@@ -20,8 +29,35 @@ public abstract class BaseController {
         return value > 0;
     }
 
-    protected void log(String message) { //is this suppose to be a logger?
-        System.out.println("[Controller] " + message);
+    static {
+        try {
+            fileHandler = new FileHandler("application.log", true);
+            fileHandler.setFormatter(new SimpleFormatter());
+
+            logger.addHandler(fileHandler);;
+
+        } catch (IOException e) {
+            System.err.println("Failed to initialize log file: " + e.getMessage());
+        }
+    }
+
+    protected void log(String message) {
+        logger.info(message);
+    }
+
+    /**
+     * Info pop up window
+     */
+    protected void showInfo(String title, String msg) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+
+        DialogPane pane = alert.getDialogPane();
+        pane.setStyle("-fx-background-color: #47d647; -fx-font-size: 14px;");
+
+        alert.showAndWait();
     }
 
     /**

@@ -4,10 +4,13 @@ import java.io.IOException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import org.example.personalfitnesstracker.DatabaseManagement.DatabaseManager;
 import org.example.personalfitnesstracker.Models.User;
 import org.example.personalfitnesstracker.Views.CreateAccountView;
-import org.example.personalfitnesstracker.Views.MainPageView;
 
 public class CreateAccountController extends BaseController {
 
@@ -29,53 +32,66 @@ public class CreateAccountController extends BaseController {
 
     private void setupHandlers() {
         createAccountView.getCreateButton().setOnAction(ev -> {
+
             String username = createAccountView.getUsernameField().getText();
             String email = createAccountView.getEmailField().getText();
 
             if (!email.contains("@")) {
-                log("Invalid email format.");
+                showError("ERROR", "Invalid email address");
                 return;
             }
 
             String passwordText = createAccountView.getPasswordField().getText();
             byte[] password = passwordText.getBytes();
 
-            String weightText = createAccountView.getWeightField().getText();
-            String heightText = createAccountView.getHeightField().getText();
-            double weight = Double.parseDouble(weightText);
-            double height = Double.parseDouble(heightText);
+            double weight = Double.parseDouble(createAccountView.getWeightField().getText());
+            double height = Double.parseDouble(createAccountView.getHeightField().getText());
 
-            String dateOfBirthText = createAccountView.getDateOfBirthField().getText();
             LocalDate dob;
             try {
-                dob = LocalDate.parse(dateOfBirthText);
+                dob = LocalDate.parse(createAccountView.getDateOfBirthField().getText());
             } catch (DateTimeException e) {
-                e.printStackTrace();
-                log("Invalid Date format. Please use yyyy-MM-dd.");
+                showError("ERROR", "Invalid date of birth format");
                 return;
             }
 
             User newUser = createUser(0, password, email, weight, height, dob, username);
 
             if (newUser != null) {
-                // Show MainPage after successful user creation
-                MainPageView mainPageView = new MainPageView();
-                MainPageController mainPageController = new MainPageController(mainPageView);
-                mainPageController.show();
+                // Load the MainPage FXML
+                try {
+                    FXMLLoader loader = new FXMLLoader(
+                            getClass().getResource("/org/example/personalfitnesstracker/Views/MainPageView.fxml")
+                    );
+                    Parent root = loader.load();
 
-                createAccountView.close();
+                    MainPageController controller = loader.getController();
+                    controller.setUser(newUser);
+                    showInfo("INFO", "User created successfully");
+
+                    Stage stage = new Stage();
+                    stage.setScene(new Scene(root));
+                    stage.setTitle("Fitness Tracker - Main Page");
+                    stage.show();
+
+                    createAccountView.close();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
 
+
     public User createUser(int userId, byte[] password, String email, double weight, double height, LocalDate dateOfBirth, String username) {
         if (isNullOrEmpty(username) || password.length == 0 || isNullOrEmpty(email)) {
-            log("Cannot create user: one or more required fields are empty.");
+            showError("ERROR", "Cannot create user: one or more required fields are empty.");
             return null;
         }
 
         if (!isPositive(weight) || !isPositive(height)) {
-            log("Cannot create user: weight and height must be positive.");
+            showError("ERROR", "Cannot create user: weight and height must be positive.");
             return null;
         }
 
@@ -86,7 +102,6 @@ public class CreateAccountController extends BaseController {
 
         User user = new User(userId, password, email, weight, height, dateOfBirth, username);
         DatabaseManager.addNewUserToDb(user);
-        log("User created: " + username);
         return user;
     }
 }

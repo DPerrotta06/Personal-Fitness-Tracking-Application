@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/22.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.personalfitnesstracker.Controllers.MainPageController"
+            prefWidth="1000" prefHeight="650"
+            style="-fx-background-color: black;">
+
+    <!-- TOP SECTION -->
+    <top>
+        <VBox spacing="5" alignment="TOP_LEFT">
+            <padding>
+                <Insets top="15" right="15" bottom="15" left="15"/>
+            </padding>
+
+            <Label fx:id="dateLabel"
+                   style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"
+                   text="DATE HERE"/>
+
+            <Label fx:id="welcomeLabel"
+                   style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;"
+                   text="Welcome, User"/>
+        </VBox>
+    </top>
+
+    <!-- CENTER SECTION -->
+    <center>
+        <VBox spacing="20" alignment="CENTER">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <!-- DAILY SUMMARY ROW -->
+            <HBox spacing="20" alignment="CENTER">
+
+                <!-- CALORIES -->
+                <VBox prefWidth="250" prefHeight="150"
+                      alignment="CENTER"
+                      style="-fx-background-color: #1a1a1a; -fx-background-radius: 10;">
+                    <Label text="Daily Calories"
+                           style="-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;"/>
+
+                    <Label fx:id="dailyCaloriesLabel"
+                           text="0 kcal"
+                           style="-fx-text-fill: white; -fx-font-size: 22; -fx-font-weight: bold;"/>
+                </VBox>
+
+                <!-- WATER -->
+                <VBox prefWidth="250" prefHeight="150"
+                      alignment="CENTER"
+                      style="-fx-background-color: #1a1a1a; -fx-background-radius: 10;">
+                    <Label text="Daily Water"
+                           style="-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;"/>
+
+                    <Label fx:id="dailyWaterLabel"
+                           text="0 L"
+                           style="-fx-text-fill: white; -fx-font-size: 22; -fx-font-weight: bold;"/>
+                </VBox>
+
+                <!-- SLEEP -->
+                <VBox prefWidth="250" prefHeight="150"
+                      alignment="CENTER"
+                      style="-fx-background-color: #1a1a1a; -fx-background-radius: 10;">
+                    <Label text="Daily Sleep"
+                           style="-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;"/>
+
+                    <Label fx:id="dailySleepLabel"
+                           text="0 h 0 min"
+                           style="-fx-text-fill: white; -fx-font-size: 22; -fx-font-weight: bold;"/>
+                </VBox>
+
+            </HBox>
+
+            <!-- BMI + WEEKLY CHART ROW -->
+            <HBox spacing="20" alignment="CENTER">
+
+                <!-- BMI -->
+                <VBox prefWidth="350" prefHeight="200"
+                      alignment="CENTER"
+                      style="-fx-background-color: #1a1a1a; -fx-background-radius: 10;">
+                    <Label text="BMI Status"
+                           style="-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: bold;"/>
+
+                    <Label fx:id="bmiStatusLabel"
+                           text="Healthy / Unhealthy"
+                           style="-fx-text-fill: white; -fx-font-size: 14;"/>
+                </VBox>
+
+                <!-- WEEKLY CHART CONTAINER -->
+                <VBox fx:id="weeklyChartContainer"
+                      prefWidth="350" prefHeight="200"
+                      alignment="CENTER"
+                      style="-fx-background-color: #1a1a1a; -fx-background-radius: 10;">
+                    <Label text="Weekly Progress"
+                           style="-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: bold;"/>
+
+                    <Label text="Graph will load here"
+                           style="-fx-text-fill: white; -fx-font-size: 14;"/>
+                </VBox>
+
+            </HBox>
+
+        </VBox>
+    </center>
+
+    <!-- BOTTOM BUTTON BAR -->
+    <bottom>
+        <HBox spacing="25" alignment="CENTER">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <Button fx:id="homeButton"
+                    text="Home"
+                    style="-fx-background-color: #1435d1; -fx-text-fill: white; -fx-font-size: 14; -fx-background-radius: 8;"
+                    maxWidth="150"/>
+
+            <Button fx:id="addEntryButton"
+                    text="Add Entry"
+                    style="-fx-background-color: #1435d1; -fx-text-fill: white; -fx-font-size: 14; -fx-background-radius: 8;"
+                    maxWidth="150"/>
+
+            <Button fx:id="goalsButton"
+                    text="Goals"
+                    style="-fx-background-color: #1435d1; -fx-text-fill: white; -fx-font-size: 14; -fx-background-radius: 8;"
+                    maxWidth="150"/>
+
+            <Button fx:id="logoutButton"
+                    text="Logout"
+                    style="-fx-background-color: #e63946; -fx-text-fill: white; -fx-font-size: 14; -fx-background-radius: 8;"
+                    maxWidth="150"/>
+
+        </HBox>
+    </bottom>
+
+</BorderPane>

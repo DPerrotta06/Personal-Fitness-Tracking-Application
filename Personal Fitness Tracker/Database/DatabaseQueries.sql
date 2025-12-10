@@ -107,6 +107,17 @@ create table Food(
     constraint fk_food_nutrition_id foreign key (NutritionID) references Nutrition(NutritionID) on delete cascade
 );
 
+CREATE TABLE Entries (
+    EntryID INT PRIMARY KEY AUTO_INCREMENT,
+    UserID INT NOT NULL,
+    EntryType VARCHAR(50) NOT NULL,
+    Value DOUBLE,               -- calories consumed, water in liters, hours of sleep, etc.
+    Notes TEXT,
+    EntryTimestamp DATETIME NOT NULL,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
+);
+
+
 alter table Users add Username varchar(24);
 alter table Sleep drop column SleepStart;
 alter table Sleep drop column SleepEnd;

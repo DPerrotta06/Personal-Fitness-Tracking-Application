@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns="http://javafx.com/javafx/22.0.1"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.personalfitnesstracker.Controllers.AddEntryController"
+      alignment="CENTER" spacing="15"
+      style="-fx-background-color: black; -fx-padding: 20;">
+
+    <Label text="Add Entry"
+           style="-fx-text-fill: white; -fx-font-size: 24; -fx-font-weight: bold;"/>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Entry Type:"
+               style="-fx-text-fill: white; -fx-font-size: 14; -fx-font-weight: bold;"/>
+
+        <ComboBox fx:id="entryTypeCombo"
+                  prefWidth="200"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Value:"
+               style="-fx-text-fill: white; -fx-font-size: 14; -fx-font-weight: bold;"/>
+
+        <TextField fx:id="valueField"
+                   promptText="Enter number"
+                   prefWidth="200"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Notes:"
+               style="-fx-text-fill: white; -fx-font-size: 14; -fx-font-weight: bold;"/>
+
+        <TextArea fx:id="notesField"
+                   promptText="Optional notes"
+                   prefWidth="200"/>
+    </HBox>
+
+    <Button fx:id="saveButton"
+            text="Save Entry"
+            style="-fx-background-color: #1435d1; -fx-text-fill: white;
+                   -fx-font-size: 14; -fx-background-radius: 8;
+                   -fx-padding: 10 20;" />
+
+</VBox>

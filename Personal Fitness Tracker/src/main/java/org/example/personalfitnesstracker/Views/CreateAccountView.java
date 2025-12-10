@@ -12,6 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class CreateAccountView extends Stage {
+
     private final TextField usernameField;
     private final TextField passwordField;
     private final TextField emailField;
@@ -19,9 +20,13 @@ public class CreateAccountView extends Stage {
     private final TextField heightField;
     private final TextField dateOfBirthField;
     private final Button createButton;
-//-----------------------NEED TO ALIGN HBOXES-----------------------
+
     public CreateAccountView() {
         setTitle("Create Account");
+
+        // A consistent label width ensures alignment
+        final int LABEL_WIDTH = 120;
+
         // --- Main Layout ---
         VBox root = new VBox();
         root.setSpacing(12);
@@ -38,57 +43,13 @@ public class CreateAccountView extends Stage {
                 -fx-font-weight: bold;
                 """);
 
-        // --- Username ---
-        HBox usernameRow = new HBox(10);
-        usernameRow.setAlignment(Pos.CENTER);
-        Label usernameLabel = new Label("USERNAME:");
-        usernameLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
-
-        usernameField = new TextField();
-        usernameField.setPromptText("Enter username");
-        usernameField.setMaxWidth(220);
-        usernameField.setStyle("""
-                -fx-background-radius: 8;
-                -fx-padding: 6;
-        """);
-
-        usernameRow.getChildren().addAll(usernameLabel, usernameField);
-        // --- Email ---
-        HBox emailRow = new HBox(10);
-        emailRow.setAlignment(Pos.CENTER);
-        Label emailLabel = new Label("EMAIL:");
-        emailLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
-
-        emailField = new TextField();
-        emailField.setPromptText("Enter email");
-        emailField.setMaxWidth(230);
-        emailField.setStyle("""
-                -fx-background-radius: 8;
-                -fx-padding: 6;
-                """);
-
-        emailRow.getChildren().addAll(emailLabel, emailField);
-
-        // --- Password ---
-        HBox passwordRow = new HBox(10);
-        passwordRow.setAlignment(Pos.CENTER);
-        Label passwordLabel = new Label("PASSWORD:");
-        passwordLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
-
-        passwordField = new PasswordField();
-        passwordField.setPromptText("Enter password");
-        passwordField.setMaxWidth(230);
-        passwordField.setStyle("""
-                -fx-background-radius: 8;
-                -fx-padding: 6;
-                """);
-
-        passwordRow.getChildren().addAll(passwordLabel, passwordField);
         // --- Weight ---
         HBox weightRow = new HBox(10);
         weightRow.setAlignment(Pos.CENTER);
+
         Label weightLabel = new Label("WEIGHT:");
         weightLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
+        weightLabel.setMinWidth(LABEL_WIDTH);
 
         weightField = new TextField();
         weightField.setPromptText("Enter weight");
@@ -99,11 +60,14 @@ public class CreateAccountView extends Stage {
         """);
 
         weightRow.getChildren().addAll(weightLabel, weightField);
+
         // --- Height ---
         HBox heightRow = new HBox(10);
         heightRow.setAlignment(Pos.CENTER);
+
         Label heightLabel = new Label("HEIGHT:");
         heightLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
+        heightLabel.setMinWidth(LABEL_WIDTH);
 
         heightField = new TextField();
         heightField.setPromptText("Enter height");
@@ -114,11 +78,14 @@ public class CreateAccountView extends Stage {
         """);
 
         heightRow.getChildren().addAll(heightLabel, heightField);
+
         // --- Date of birth ---
         HBox dateOfBirthRow = new HBox(10);
         dateOfBirthRow.setAlignment(Pos.CENTER);
+
         Label dateOfBirthLabel = new Label("DATE OF BIRTH:");
         dateOfBirthLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
+        dateOfBirthLabel.setMinWidth(LABEL_WIDTH);
 
         dateOfBirthField = new TextField();
         dateOfBirthField.setPromptText("Enter date of birth");
@@ -129,6 +96,61 @@ public class CreateAccountView extends Stage {
         """);
 
         dateOfBirthRow.getChildren().addAll(dateOfBirthLabel, dateOfBirthField);
+
+        // --- Username ---
+        HBox usernameRow = new HBox(10);
+        usernameRow.setAlignment(Pos.CENTER);
+
+        Label usernameLabel = new Label("USERNAME:");
+        usernameLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
+        usernameLabel.setMinWidth(LABEL_WIDTH);
+
+        usernameField = new TextField();
+        usernameField.setPromptText("Enter username");
+        usernameField.setMaxWidth(220);
+        usernameField.setStyle("""
+                -fx-background-radius: 8;
+                -fx-padding: 6;
+        """);
+
+        usernameRow.getChildren().addAll(usernameLabel, usernameField);
+
+        // --- Email ---
+        HBox emailRow = new HBox(10);
+        emailRow.setAlignment(Pos.CENTER);
+
+        Label emailLabel = new Label("EMAIL:");
+        emailLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
+        emailLabel.setMinWidth(LABEL_WIDTH);
+
+        emailField = new TextField();
+        emailField.setPromptText("Enter email");
+        emailField.setMaxWidth(220);
+        emailField.setStyle("""
+                -fx-background-radius: 8;
+                -fx-padding: 6;
+        """);
+
+        emailRow.getChildren().addAll(emailLabel, emailField);
+
+        // --- Password ---
+        HBox passwordRow = new HBox(10);
+        passwordRow.setAlignment(Pos.CENTER);
+
+        Label passwordLabel = new Label("PASSWORD:");
+        passwordLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-family: Arial, Helvetica, sans-serif; -fx-font-weight: bold;");
+        passwordLabel.setMinWidth(LABEL_WIDTH);
+
+        passwordField = new PasswordField();
+        passwordField.setPromptText("Enter password");
+        passwordField.setMaxWidth(220);
+        passwordField.setStyle("""
+                -fx-background-radius: 8;
+                -fx-padding: 6;
+        """);
+
+        passwordRow.getChildren().addAll(passwordLabel, passwordField);
+
         // --- Create Account button ---
         createButton = new Button("Create Account");
         createButton.setStyle("""
@@ -140,6 +162,7 @@ public class CreateAccountView extends Stage {
                 -fx-padding: 15 20 10 20;
         """);
 
+        // Add all rows
         root.getChildren().addAll(
                 title,
                 weightRow,
@@ -150,29 +173,16 @@ public class CreateAccountView extends Stage {
                 passwordRow,
                 createButton
         );
-        Scene scene = new Scene(root, 350, 400);
+
+        Scene scene = new Scene(root, 350, 420);
         setScene(scene);
     }
 
-    public TextField getUsernameField() {
-        return usernameField;
-    }
-    public TextField getPasswordField() {
-        return passwordField;
-    }
-    public TextField getEmailField() {
-        return emailField;
-    }
-    public Button getCreateButton() {
-        return createButton;
-    }
-    public TextField getWeightField() {
-        return weightField;
-    }
-    public TextField getHeightField() {
-        return heightField;
-    }
-    public TextField getDateOfBirthField() {
-        return dateOfBirthField;
-    }
+    public TextField getUsernameField() { return usernameField; }
+    public TextField getPasswordField() { return passwordField; }
+    public TextField getEmailField() { return emailField; }
+    public Button getCreateButton() { return createButton; }
+    public TextField getWeightField() { return weightField; }
+    public TextField getHeightField() { return heightField; }
+    public TextField getDateOfBirthField() { return dateOfBirthField; }
 }
