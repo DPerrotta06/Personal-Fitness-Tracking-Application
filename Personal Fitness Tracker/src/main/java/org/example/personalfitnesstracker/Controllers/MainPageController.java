@@ -189,4 +189,34 @@ public class MainPageController extends BaseController {
         goalsButton.setOnAction(e -> showInfo("Goals", "Goals page not implemented yet."));
         homeButton.setOnAction(e -> log("Already on Home Screen"));
     }
+
+    /**
+     * Calculates the user's BMI based on their height and weight
+     *
+     * @param user
+     * @return
+     */
+    public double calculateBmiNumeric(User user) {
+        return user.weightProperty().get() / (Math.pow((user.heightProperty().get() / 1000), 2));
+    }
+
+    /**
+     * Gets the numeric value of the User's BMI and assigns a verbal value
+     *
+     * @param user
+     * @return
+     */
+    public String calculateBmiVerbal(User user) {
+        double bmiNumber = calculateBmiNumeric(user);
+        if (bmiNumber < 18.0) {
+            return "Underweight";
+        } else if (bmiNumber >= 18.0 && bmiNumber <= 24.9) {
+            return "Normal";
+        } else if (bmiNumber >= 25 && bmiNumber <= 29.9) {
+            return "Overweight";
+        } else {
+            return "Obese";
+        }
+    }
+
 }

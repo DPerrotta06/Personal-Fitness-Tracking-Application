@@ -12,21 +12,33 @@ import org.example.personalfitnesstracker.Views.LoginView;
 
 import java.io.IOException;
 
-public class LoginController extends BaseController {
+public final class LoginController extends BaseController {
 
     private final LoginView loginView;
     private CreateAccountView createAccountView;
 
+    /**
+     * Constructor
+     *
+     * @param loginView
+     */
     public LoginController(LoginView loginView) {
         this.loginView = loginView;
         setupHandlers();
     }
 
+    /**
+     * Shows the login page
+     */
     public void show() {
         loginView.show();
     }
 
-    private void setupHandlers() {
+    /**
+     * Takes care of the general setup and event handling from button clicks to
+     * retrieving database data.
+     */
+    public void setupHandlers() {
         loginView.getLoginButton().setOnAction(event -> {
 
             String email = loginView.getEmailField().getText().trim();

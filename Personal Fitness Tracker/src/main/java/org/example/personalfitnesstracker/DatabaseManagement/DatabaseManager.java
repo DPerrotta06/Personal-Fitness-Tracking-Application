@@ -17,9 +17,6 @@ import java.util.LinkedHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.logging.FileHandler;
 import java.util.logging.SimpleFormatter;
 import javafx.collections.FXCollections;
@@ -38,8 +35,11 @@ public class DatabaseManager { //might be immutable?
     private static final String PW = loadDatabase.getDbPassword();
     private static final Logger logger = Logger.getLogger(DatabaseManager.class.getName());
     private final FileHandler logFile;
-    private static Map<Integer, List<Workout>> workoutCache = new HashMap<>();
 
+    /**
+     *
+     * @throws IOException
+     */
     public DatabaseManager() throws IOException {
         this.logFile = new FileHandler("src\\logfile.log", true);
         this.logFile.setFormatter(new SimpleFormatter());
@@ -370,14 +370,21 @@ public class DatabaseManager { //might be immutable?
         }
     }
 
-    public static ObservableList<User> getUserById() {
-        ObservableList<User> user = FXCollections.observableArrayList();
+    //====================================READ====================================
+    /**
+     * Retrieve the correct user by their ID
+     *
+     * @param userId
+     * @return
+     */
+    public static User getUserById(int userId) {
+        User user = null;
         String query = "SELECT * FROM Users WHERE UserID = ?";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PW)) {
-            PreparedStatement prepStat = conn.prepareStatement(query);
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
+            prepStat.setInt(1, userId);
             ResultSet set = prepStat.executeQuery();
-            while (set.next()) {
-                user.add(new User(
+            if (set.next()) {
+                user = new User(
                         set.getInt("UserID"),
                         set.getBytes("Password"),
                         set.getString("Email"),
@@ -385,7 +392,7 @@ public class DatabaseManager { //might be immutable?
                         set.getDouble("Height"),
                         set.getDate("DateOfBirth").toLocalDate(),
                         set.getString("Username")
-                ));
+                );
             }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
@@ -393,21 +400,21 @@ public class DatabaseManager { //might be immutable?
         return user;
     }
 
-    //====================================READ====================================
     /**
-     * Retrieve the right user via their email
+     * Retrieve the right user via their email and password. This returns the
+     * corresponding user.
      *
      * @return
      */
-    public static ObservableList<User> getUserByEmail(String email) {
-        ObservableList<User> user = FXCollections.observableArrayList();
-        String query = "SELECT * FROM Users WHERE Email = ?";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PW)) {
-            PreparedStatement prepStat = conn.prepareStatement(query);
+    public static User getUserByEmailAndPw(String email, byte[] password) {
+        User user = null;
+        String query = "SELECT UserID FROM Users WHERE Email = ? AND Password = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
             prepStat.setString(1, email);
+            prepStat.setBytes(2, password);
             ResultSet set = prepStat.executeQuery();
-            while (set.next()) {
-                user.add(new User(
+            if (set.next()) {
+                user = new User(
                         set.getInt("UserID"),
                         set.getBytes("Password"),
                         set.getString("Email"),
@@ -415,7 +422,7 @@ public class DatabaseManager { //might be immutable?
                         set.getDouble("Height"),
                         set.getDate("DateOfBirth").toLocalDate(),
                         set.getString("Username")
-                ));
+                );
             }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
@@ -498,9 +505,6 @@ public class DatabaseManager { //might be immutable?
      * @return
      */
     public static ObservableList<Workout> displayWorkoutLogs(int userID) {
-        if (workoutCache.containsKey(userID)) { //will test this out with other queries during production
-            return FXCollections.observableArrayList(workoutCache.get(userID));
-        }
         ObservableList<Workout> workout = FXCollections.observableArrayList();
         String query = "SELECT w.*, m.TotalSets, m.TotalReps, m.TotalWeight, c.TotalDistance, c.HeartRateZone "
                 + "FROM Workouts w LEFT JOIN MuscularWorkout m ON w.WorkoutID = m.WorkoutID "
@@ -537,7 +541,6 @@ public class DatabaseManager { //might be immutable?
                     ));
                 }
             }
-            workoutCache.put(userID, workout);
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
         }
@@ -910,6 +913,11 @@ public class DatabaseManager { //might be immutable?
             prepStat.setString(1, nutrition.nutritionDescriptionProperty().get());
             prepStat.setTimestamp(2, Timestamp.valueOf(nutrition.timeStampProperty()));
             prepStat.executeUpdate();
+            if (nutrition instanceof Food food) {
+                updateFood(food, conn);
+            } else if (nutrition instanceof Water water) {
+                updateWater(water, conn);
+            }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
         }
@@ -962,6 +970,21 @@ public class DatabaseManager { //might be immutable?
 
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error deleting user.", e);
+        }
+    }
+
+    /**
+     * 
+     * @param userId 
+     */
+    public static void loadUserDataInParallel(int userId) {
+        Thread[] parallelThreads = new Thread[4];
+        parallelThreads[0] = new Thread(() -> displayNutritionLogs(userId));
+        parallelThreads[1] = new Thread(() -> displayWorkoutLogs(userId));
+        parallelThreads[2] = new Thread(() -> displayGoals(userId));
+        parallelThreads[3] = new Thread(() -> displaySleepingLogs(userId));
+        for (Thread thread : parallelThreads) {
+            thread.start();
         }
     }
 

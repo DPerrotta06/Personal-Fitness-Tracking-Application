@@ -1,8 +1,9 @@
 package org.example.personalfitnesstracker.Controllers;
 
-import java.io.IOException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -12,25 +13,57 @@ import org.example.personalfitnesstracker.DatabaseManagement.DatabaseManager;
 import org.example.personalfitnesstracker.Models.User;
 import org.example.personalfitnesstracker.Views.CreateAccountView;
 
-public class CreateAccountController extends BaseController {
+public final class CreateAccountController extends BaseController {
 
     private final CreateAccountView createAccountView;
 
+    /**
+     * Constructor
+     * @param createAccountView 
+     */
     public CreateAccountController(CreateAccountView createAccountView) {
         this.createAccountView = createAccountView;
-        try {
-            DatabaseManager databaseManager = new DatabaseManager();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        setupHandlers();
+        setUpHandlers();
     }
 
+    /**
+     * Load up UI
+     */
     public void show() {
         createAccountView.show();
     }
 
-    private void setupHandlers() {
+    /**
+     * Create a new User and add it to the DB
+     * @param userId
+     * @param password
+     * @param email
+     * @param weight
+     * @param height
+     * @param dateOfBirth
+     * @param username
+     * @return 
+     */
+    public User createUser(int userId, byte[] password, String email, double weight, double height, LocalDate dateOfBirth, String username) {
+        if (isNullOrEmpty(username) || password.length == 0 || isNullOrEmpty(email)) {
+            return null;
+        }
+        if (!isPositive(weight) || !isPositive(height)) {
+            return null;
+        }
+        if (DatabaseManager.userExists(email, password)) {
+            showMessageWindow("Cannot create a duplicate User", "This user already exists! Please enter a different Username and Password.", AlertType.WARNING, ButtonType.OK);
+            return null;
+        }
+        User user = new User(userId, password, email, weight, height, dateOfBirth, username);
+        DatabaseManager.addNewUserToDb(user);
+        return user;
+    }
+
+    /**
+     * 
+     */
+    public void setUpHandlers() {
         createAccountView.getCreateButton().setOnAction(ev -> {
 
             String username = createAccountView.getUsernameField().getText();
