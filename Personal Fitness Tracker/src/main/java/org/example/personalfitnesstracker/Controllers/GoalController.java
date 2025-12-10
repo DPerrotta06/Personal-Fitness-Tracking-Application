@@ -29,6 +29,7 @@ public class GoalController extends BaseController {
 
     /**
      * Constructor
+     * @param loggedUser
      */
     public GoalController(User loggedUser) {
         super(loggedUser);

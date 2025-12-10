@@ -1,6 +1,6 @@
 package org.example.personalfitnesstracker.Controllers;
 
-import javafx.application.Platform;
+import java.io.IOException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -18,27 +18,39 @@ import org.example.personalfitnesstracker.Models.User;
 
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.logging.Level;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 
 public class MainPageController extends BaseController {
 
-    @FXML private Label dateLabel;
-    @FXML private Label welcomeLabel;
+    @FXML
+    private Label dateLabel;
+    @FXML
+    private Label welcomeLabel;
 
-    @FXML private Label dailyCaloriesLabel;
-    @FXML private Label dailyWaterLabel;
-    @FXML private Label dailySleepLabel;
+    @FXML
+    private Label dailyCaloriesLabel;
+    @FXML
+    private Label dailyWaterLabel;
+    @FXML
+    private Label dailySleepLabel;
 
-    @FXML private Label bmiStatusLabel;
+    @FXML
+    private Label bmiStatusLabel;
 
-    @FXML private VBox weeklyChartContainer;
+    @FXML
+    private VBox weeklyChartContainer;
+    @FXML
+    private Button homeButton;
+    @FXML
+    private Button addEntryButton;
+    @FXML
+    private Button goalsButton;
+    @FXML
+    private Button logoutButton;
 
-    @FXML private Button homeButton;
-    @FXML private Button addEntryButton;
-    @FXML private Button goalsButton;
-    @FXML private Button logoutButton;
-
-    private User currentUser;
-
+    //private User currentUser; //We can just use the loggedUser provided by the base controller
     // -------------------------------------------------------------------------
     // INITIALIZE
     // -------------------------------------------------------------------------
@@ -54,8 +66,6 @@ public class MainPageController extends BaseController {
     // SET USER (called by LoginController)
     // -------------------------------------------------------------------------
     public void setUser(User user) {
-        this.currentUser = user;
-
         welcomeLabel.setText("Welcome, " + user.usernameProperty().get());
         dateLabel.setText(LocalDate.now().toString());
 
@@ -75,9 +85,12 @@ public class MainPageController extends BaseController {
     // DAILY SUMMARY (calories, water, sleep)
     // -------------------------------------------------------------------------
     private void loadDailySummary() {
-        if (currentUser == null) return;
+        if (loggedUser == null) {
+            return;
+        }
 
-        int userId = currentUser.userIdProperty().get();
+        //int userId = currentUser.userIdProperty().get();
+        int userId = loggedUser.userIdProperty().get();
 
         double calories = DatabaseManager.getDailyCalories(userId);
         dailyCaloriesLabel.setText(String.format("%.0f kcal", calories));
@@ -92,36 +105,26 @@ public class MainPageController extends BaseController {
     // -------------------------------------------------------------------------
     // BMI STATUS
     // -------------------------------------------------------------------------
+    /**
+     * Loading the user's BMI by using the bmi calculation helper methods
+     */
     private void loadBMI() {
-        if (currentUser == null) return;
-
-        double weightKg = currentUser.weightProperty().get();
-        double heightMeters = currentUser.heightProperty().get();
-
-        if (heightMeters <= 0) {
-            bmiStatusLabel.setText("Invalid height");
+        if (loggedUser == null) {
             return;
         }
-
-        double bmi = weightKg / (heightMeters * heightMeters);
-
-        String category;
-        if (bmi < 18.5) category = "Underweight";
-        else if (bmi < 25) category = "Healthy";
-        else if (bmi < 30) category = "Overweight";
-        else category = "Obese";
-
-        bmiStatusLabel.setText(String.format("BMI: %.1f (%s)", bmi, category));
+        bmiStatusLabel.setText(String.format("BMI: %.1f (%s)", calculateBmiNumeric(loggedUser), calculateBmiVerbal(loggedUser)));
     }
 
     // -------------------------------------------------------------------------
     // WEEKLY CHART
     // -------------------------------------------------------------------------
     private void loadWeeklyChart() {
-        if (currentUser == null) return;
+        if (loggedUser == null) {
+            return;
+        }
 
-        Map<LocalDate, Double> data =
-                DatabaseManager.getWeeklyCalories(currentUser.userIdProperty().get());
+        //Map<LocalDate, Double> data = DatabaseManager.getWeeklyCalories(currentUser.userIdProperty().get());
+        Map<LocalDate, Double> data = DatabaseManager.getWeeklyCalories(loggedUser.userIdProperty().get());
 
         weeklyChartContainer.getChildren().clear();
 
@@ -156,10 +159,9 @@ public class MainPageController extends BaseController {
     private void setupHandlers() {
 
         logoutButton.setOnAction(e -> {
-            showInfo("Logout", "You have been logged out.");
+            showMessageWindow("Logout", "You have been logged out.", AlertType.INFORMATION, ButtonType.OK);
             logoutButton.getScene().getWindow().hide();
         });
-
         addEntryButton.setOnAction(event -> {
             try {
                 FXMLLoader loader = new FXMLLoader(
@@ -168,9 +170,9 @@ public class MainPageController extends BaseController {
                 Parent root = loader.load();
 
                 AddEntryController controller = loader.getController();
-                controller.setUser(currentUser);
+                controller.setUser(loggedUser);
 
-                // 🔥 Tell AddEntryController how to refresh the main page
+                //Tell AddEntryController how to refresh the main page
                 controller.setOnEntrySaved(() -> {
                     loadAllSections();   // Reload calories, water, sleep, BMI, chart
                 });
@@ -180,14 +182,11 @@ public class MainPageController extends BaseController {
                 stage.setScene(new Scene(root));
                 stage.show();
 
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (IOException e) {
+                
             }
         });
-
-
-        goalsButton.setOnAction(e -> showInfo("Goals", "Goals page not implemented yet."));
-        homeButton.setOnAction(e -> log("Already on Home Screen"));
+        goalsButton.setOnAction(e -> showMessageWindow("Goals", "Goals page not implemented yet.", AlertType.INFORMATION, ButtonType.OK));
     }
 
     /**

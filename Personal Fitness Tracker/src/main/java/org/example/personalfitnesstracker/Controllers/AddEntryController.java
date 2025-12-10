@@ -11,14 +11,20 @@ import org.example.personalfitnesstracker.Models.Entry;
 import org.example.personalfitnesstracker.Models.User;
 
 import java.time.LocalDateTime;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 
 public class AddEntryController extends BaseController {
 
     private Runnable onEntrySaved;
-    @FXML private ComboBox<String> entryTypeCombo;
-    @FXML private TextField valueField;
-    @FXML private TextArea notesField;
-    @FXML private Button saveButton;
+    @FXML
+    private ComboBox<String> entryTypeCombo;
+    @FXML
+    private TextField valueField;
+    @FXML
+    private TextArea notesField;
+    @FXML
+    private Button saveButton;
 
     private User currentUser;
 
@@ -29,7 +35,6 @@ public class AddEntryController extends BaseController {
     public void setOnEntrySaved(Runnable callback) {
         this.onEntrySaved = callback;
     }
-
 
     @FXML
     public void initialize() {
@@ -47,13 +52,13 @@ public class AddEntryController extends BaseController {
     private void saveEntry() {
 
         if (currentUser == null) {
-            showError("Error", "No user loaded.");
+            showMessageWindow("Error", "No user loaded.", AlertType.ERROR, ButtonType.OK);
             return;
         }
 
         String type = entryTypeCombo.getValue();
         if (type == null) {
-            showError("Missing Type", "Please select an entry type.");
+            showMessageWindow("Missing Type", "Please select an entry type.", AlertType.ERROR, ButtonType.OK);
             return;
         }
 
@@ -61,7 +66,7 @@ public class AddEntryController extends BaseController {
         try {
             value = Double.parseDouble(valueField.getText().trim());
         } catch (NumberFormatException ex) {
-            showError("Invalid value", "Value must be a number.");
+            showMessageWindow("Invalid value", "Value must be a number.", AlertType.ERROR, ButtonType.OK);
             return;
         }
 
@@ -77,7 +82,7 @@ public class AddEntryController extends BaseController {
 
         DatabaseManager.addEntry(entry);
 
-        showInfo("Success", "Entry saved!");
+        showMessageWindow("Success", "Entry saved!", AlertType.INFORMATION, ButtonType.OK);
 
         if (onEntrySaved != null) {
             onEntrySaved.run();

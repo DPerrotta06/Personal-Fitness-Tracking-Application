@@ -1,10 +1,16 @@
 package org.example.personalfitnesstracker.Controllers;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.DialogPane;
 import org.example.personalfitnesstracker.Models.User;
 
 /**
@@ -14,6 +20,15 @@ public abstract class BaseController {
 
     private static final Logger logger = Logger.getLogger(BaseController.class.getName());
     private static FileHandler fileHandler;
+    protected User loggedUser;
+
+    public BaseController(User loggedUser) {
+        this.loggedUser = loggedUser;
+    }
+
+    public BaseController() {
+
+    }
 
     protected boolean isNullOrEmpty(String value) {
         return value == null || value.trim().isEmpty();
@@ -37,46 +52,50 @@ public abstract class BaseController {
         return value > 0;
     }
 
-    static {
+    static { //do we need this?
         try {
             fileHandler = new FileHandler("application.log", true);
             fileHandler.setFormatter(new SimpleFormatter());
 
-            logger.addHandler(fileHandler);;
+            logger.addHandler(fileHandler);
 
         } catch (IOException e) {
             System.err.println("Failed to initialize log file: " + e.getMessage());
         }
     }
 
-    protected void log(String message) {
+    /**
+     * Logger function to call the logger
+     * @param message 
+     * @param level 
+     */
+    protected void log(String message, Level level) {
         logger.info(message);
     }
 
     /**
-     * Info pop up window
+     * Using regex to check if an email is valid
+     *
+     * @param email
+     * @return
      */
-    protected void showInfo(String title, String msg) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(msg);
-
-        DialogPane pane = alert.getDialogPane();
-        pane.setStyle("-fx-background-color: #47d647; -fx-font-size: 14px;");
-
-        alert.showAndWait();
+    public static boolean isValidEmail(String email) {
+        Pattern regex = Pattern.compile("/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"); //regular expression for emails
+        Matcher match = regex.matcher(email);
+        return match.find();
     }
 
     /**
-     * Using regex to check if a password is valid
+     * Using regex to check if a password is valid. It must contain at least one
+     * uppercase letter, one lowercase letter, one digit, one special character
+     * and be at least 8 characters long
      *
      * @param password
      * @return
      */
-    public static boolean validPassword(byte[] password) {
+    public static boolean isValidPassword(byte[] password) {
         String pw = new String(password, StandardCharsets.UTF_8);
-        Pattern regex = Pattern.compile("/^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,24}$");
+        Pattern regex = Pattern.compile("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&_])[A-Za-z\\d@$!%*?&_]{8,}$");
         Matcher match = regex.matcher(pw);
         return match.find();
     }
@@ -86,14 +105,16 @@ public abstract class BaseController {
      *
      * @param title
      * @param msg
-     * @param alert
+     * @param alertType
      * @param button
      */
     protected void showMessageWindow(String title, String msg, Alert.AlertType alertType, ButtonType button) {
         Alert a = new Alert(alertType.getDeclaringClass().cast(alertType));
         a.setTitle(title);
-        a.setHeaderText(msg);
+        a.setContentText(msg);
         a.getButtonTypes().add(button);
+        DialogPane pane = a.getDialogPane();
+        pane.setStyle("-fx-background-color: #47d647; -fx-font-size: 14px;");
         a.showAndWait();
     }
 }

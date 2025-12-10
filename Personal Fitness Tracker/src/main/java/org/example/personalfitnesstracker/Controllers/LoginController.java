@@ -11,6 +11,9 @@ import org.example.personalfitnesstracker.Views.CreateAccountView;
 import org.example.personalfitnesstracker.Views.LoginView;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 
 public final class LoginController extends BaseController {
 
@@ -45,12 +48,10 @@ public final class LoginController extends BaseController {
             String password = loginView.getPasswordField().getText().trim();
 
             if (DatabaseManager.userExists(email, password.getBytes())) {
-                showInfo("INFO", "Login Successful!");
-                log("User " + email + " logged in!");
+                showMessageWindow("Login Status", "Login Successful!", AlertType.INFORMATION, ButtonType.OK);
+                User user = getUserDataByEmail(email, password.getBytes());
 
-                User user = getUserDataByEmail(email);
-
-                 if (user != null) {
+                if (user != null) {
 
                     try {
                         FXMLLoader loader = new FXMLLoader(
@@ -69,16 +70,14 @@ public final class LoginController extends BaseController {
                         loginView.close();
 
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        log("Unexpected File Exception." + e, Level.SEVERE); //logger
                     }
                 }
-
             } else {
-                showError("ERROR", "User " + email + " does not exist or incorrect password.");
-                log("User " + email + " does not exist or incorrect password.");
+                showMessageWindow("ERROR", "User " + email + " does not exist or incorrect password.", AlertType.ERROR, ButtonType.OK);
+                log("User " + email + " does not exist or incorrect password.", Level.WARNING);
             }
         });
-
 
         loginView.getCreateAccountLink().setOnAction(e -> {
             createAccountView = new CreateAccountView();
@@ -88,13 +87,19 @@ public final class LoginController extends BaseController {
         });
     }
 
-    private User getUserDataByEmail(String email) {
-        ObservableList<User> users = DatabaseManager.getUserByEmail(email);
-        if (!users.isEmpty()) {
-            return users.get(0);
+    /**
+     *
+     * @param email
+     * @param pw
+     * @return
+     */
+    private User getUserDataByEmail(String email, byte[] pw) {
+        User user = DatabaseManager.getUserByEmailAndPw(email, pw);
+        if (user != null) {
+            return user;
         }
-        showError("ERROR", "User " + email + " does not exist");
-        log("User " + email + " does not exist");
+        showMessageWindow("ERROR", "User " + email + " does not exist", AlertType.ERROR, ButtonType.OK);
+        log("User " + email + " does not exist", Level.SEVERE);
         return null;
     }
 }

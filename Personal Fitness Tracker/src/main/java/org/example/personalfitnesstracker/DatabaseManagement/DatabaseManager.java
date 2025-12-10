@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.Timestamp;
+import java.util.Map;
 import java.util.logging.FileHandler;
 import java.util.logging.SimpleFormatter;
 import javafx.collections.FXCollections;
@@ -76,8 +77,7 @@ public class DatabaseManager { //might be immutable?
     public static void addNewUserToDb(User user) {
         String query = "INSERT INTO Users (Password, Email, Weight, Height, DateOfBirth, Username) VALUES (?, ?, ?, ?, ?, ?)";
 
-        try (Connection conn = DriverManager.getConnection(URL, USER, PW);
-             PreparedStatement prepStat = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
             prepStat.setBytes(1, user.passwordProperty().get());
             prepStat.setString(2, user.emailProperty().get());
@@ -101,7 +101,6 @@ public class DatabaseManager { //might be immutable?
         }
     }
 
-
     public static void addEntry(Entry entry) {
 
         String sql = """
@@ -109,8 +108,7 @@ public class DatabaseManager { //might be immutable?
         VALUES (?, ?, ?, ?, ?)
     """;
 
-        try (Connection conn = DriverManager.getConnection(URL, USER, PW);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, entry.getUserId());
             ps.setString(2, entry.getEntryType());
@@ -124,9 +122,6 @@ public class DatabaseManager { //might be immutable?
             e.printStackTrace();
         }
     }
-
-
-
 
     /**
      * Logs a new sleep session from the view and controller and stores it into
@@ -621,21 +616,20 @@ public class DatabaseManager { //might be immutable?
           AND DATE(EntryTimestamp) = CURDATE();
     """;
 
-        try (Connection conn = DriverManager.getConnection(URL, USER, PW);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
 
-            if (rs.next()) return rs.getDouble(1);
+            if (rs.next()) {
+                return rs.getDouble(1);
+            }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
         }
         return 0;
     }
-
-
 
     public static double getDailyWater(int userId) {
         String sql = """
@@ -645,22 +639,20 @@ public class DatabaseManager { //might be immutable?
           AND DATE(EntryTimestamp) = CURDATE();
     """;
 
-        try (Connection conn = DriverManager.getConnection(URL, USER, PW);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
 
-            if (rs.next()) return rs.getDouble(1);
+            if (rs.next()) {
+                return rs.getDouble(1);
+            }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
         }
-
-        return 0;
+        return 0.0;
     }
-
-
 
     public static double[] getDailySleep(int userId) {
 
@@ -673,8 +665,7 @@ public class DatabaseManager { //might be immutable?
 
         double totalHours = 0;
 
-        try (Connection conn = DriverManager.getConnection(URL, USER, PW);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
@@ -683,8 +674,8 @@ public class DatabaseManager { //might be immutable?
                 totalHours += rs.getDouble(1);
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
         }
 
         int hours = (int) totalHours;
@@ -692,8 +683,6 @@ public class DatabaseManager { //might be immutable?
 
         return new double[]{hours, minutes};
     }
-
-
 
     public static Map<LocalDate, Double> getWeeklyCalories(int userId) {
 
@@ -709,8 +698,7 @@ public class DatabaseManager { //might be immutable?
 
         Map<LocalDate, Double> data = new LinkedHashMap<>();
 
-        try (Connection conn = DriverManager.getConnection(URL, USER, PW);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
@@ -719,14 +707,12 @@ public class DatabaseManager { //might be immutable?
                 data.put(rs.getDate(1).toLocalDate(), rs.getDouble(2));
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
         }
 
         return data;
     }
-
-
 
     //====================================UPDATE====================================
     /**
@@ -974,8 +960,8 @@ public class DatabaseManager { //might be immutable?
     }
 
     /**
-     * 
-     * @param userId 
+     *
+     * @param userId
      */
     public static void loadUserDataInParallel(int userId) {
         Thread[] parallelThreads = new Thread[4];
