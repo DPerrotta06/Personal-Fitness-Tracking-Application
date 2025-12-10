@@ -1,5 +1,6 @@
 package org.example.personalfitnesstracker.Controllers;
 
+import java.time.LocalDate;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.example.personalfitnesstracker.Factories.FoodFactory;
@@ -7,8 +8,11 @@ import org.example.personalfitnesstracker.Factories.INutritionFactory;
 import org.example.personalfitnesstracker.Factories.NutritionAttributeData;
 import org.example.personalfitnesstracker.Factories.WaterFactory;
 import org.example.personalfitnesstracker.Models.Nutrition;
-
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.example.personalfitnesstracker.DatabaseManagement.DatabaseManager;
+import org.example.personalfitnesstracker.Models.User;
 
 /**
  * Controller responsible for creating and managing Nutrition logs (Food and
@@ -23,7 +27,8 @@ public class NutritionController extends BaseController {
     /**
      * Constructor
      */
-    public NutritionController() {
+    public NutritionController(User loggedUser) {
+        super(loggedUser);
         this.foodFactory = new FoodFactory();
         this.waterFactory = new WaterFactory();
         this.nutritionLogs = FXCollections.observableArrayList();
@@ -123,5 +128,33 @@ public class NutritionController extends BaseController {
         Nutrition foodLog = foodFactory.addNutritionLog(attr);
         nutritionLogs.add(foodLog);
         return foodLog;
+    }
+
+    /**
+     *
+     * @param date
+     * @return
+     */
+    public ObservableList<Nutrition> filterByDate(LocalDate date) {
+        ObservableList<Nutrition> nutrient = DatabaseManager.displayNutritionLogs(loggedUser.userIdProperty().get());
+        List<Nutrition> filtered = nutrient.parallelStream().filter(n -> {
+            LocalDate nutritionDate = n.timeStampProperty().toLocalDate();
+            return nutritionDate.isEqual(date);
+        }).collect(Collectors.toList());
+        return FXCollections.observableArrayList(filtered);
+    }
+
+    /**
+     *
+     * @param meal
+     * @return
+     */
+    public ObservableList<Nutrition> filterByMeal(String meal) {
+        ObservableList<Nutrition> nutrient = DatabaseManager.displayNutritionLogs(loggedUser.userIdProperty().get());
+        List<Nutrition> filtered = nutrient.parallelStream().filter(n -> {
+            String foodEaten = n.nutritionDescriptionProperty().get();
+            return foodEaten.equalsIgnoreCase(meal);
+        }).collect(Collectors.toList());
+        return FXCollections.observableArrayList(filtered);
     }
 }

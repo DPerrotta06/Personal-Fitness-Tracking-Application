@@ -5,11 +5,22 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import org.example.personalfitnesstracker.Models.User;
 
 /**
  * Base controller with small helper methods.
  */
 public abstract class BaseController {
+
+    protected User loggedUser;
+
+    public BaseController(User logggedUser) {
+        this.loggedUser = logggedUser;
+    }
+    
+    public BaseController(){
+        
+    }
 
     /**
      *

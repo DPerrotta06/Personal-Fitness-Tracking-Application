@@ -8,7 +8,6 @@ import org.example.personalfitnesstracker.Models.User;
 public class MainPageController extends BaseController {
 
     private final MainPageView mainPageView; //loads up the main dashborad page
-    private final User loggedUser; //represents the User who "owns" this dashboard instance
 
     /**
      * Constructor
@@ -17,8 +16,8 @@ public class MainPageController extends BaseController {
      * @param loggedUser
      */
     public MainPageController(MainPageView mainPageView, User loggedUser) {
+        super(loggedUser);
         this.mainPageView = new MainPageView();
-        this.loggedUser = loggedUser;
         setupHandlers();
     }
 
@@ -27,11 +26,10 @@ public class MainPageController extends BaseController {
      */
     public void show() {
         mainPageView.show();
-        DatabaseManager.loadAllUserData(loggedUser.userIdProperty().get());
     }
 
     /**
-     * 
+     *
      */
     private void setupHandlers() {
         mainPageView.getExerciseButton().setOnAction(event -> {

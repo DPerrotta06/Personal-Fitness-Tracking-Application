@@ -18,7 +18,6 @@ public class MainPageView extends Stage {
     private final Button goalsButton;
     private final Button inboxButton;
     private final Button logoutButton;
-    private final Label dateLabel;
 
     public MainPageView() {
         setTitle("Fitness Tracker - Main Page");

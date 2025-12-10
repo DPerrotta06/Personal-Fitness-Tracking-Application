@@ -15,9 +15,6 @@ import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.logging.FileHandler;
 import java.util.logging.SimpleFormatter;
 import javafx.collections.FXCollections;
@@ -38,8 +35,8 @@ public class DatabaseManager { //might be immutable?
     private final FileHandler logFile;
 
     /**
-     * 
-     * @throws IOException 
+     *
+     * @throws IOException
      */
     public DatabaseManager() throws IOException {
         this.logFile = new FileHandler("src\\logfile.log", true);
@@ -759,6 +756,11 @@ public class DatabaseManager { //might be immutable?
             prepStat.setString(1, nutrition.nutritionDescriptionProperty().get());
             prepStat.setTimestamp(2, Timestamp.valueOf(nutrition.timeStampProperty()));
             prepStat.executeUpdate();
+            if (nutrition instanceof Food food) {
+                updateFood(food, conn);
+            } else if (nutrition instanceof Water water) {
+                updateWater(water, conn);
+            }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
         }
@@ -812,27 +814,6 @@ public class DatabaseManager { //might be immutable?
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error deleting user.", e);
         }
-    }
-
-    //====================================Parallel Processing====================================
-    /**
-     * Making threads to load all user data in parallel
-     *
-     * @param userId
-     */
-    public static void loadAllUserData(int userId) {
-        new Thread(() -> {
-            displaySleepingLogs(userId);
-        }).start();
-        new Thread(() -> {
-            displayNutritionLogs(userId);
-        }).start();
-        new Thread(() -> {
-            displayWorkoutLogs(userId);
-        }).start();
-        new Thread(() -> {
-            displayGoals(userId);
-        }).start();
     }
 
     /**

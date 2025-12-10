@@ -28,13 +28,12 @@ public class WorkoutController extends BaseController {
     private final IWorkoutFactory muscularFactory;
     private final ArrayDeque<Workout> recentWorkouts = new ArrayDeque<>();
     private final ObservableList<Workout> workouts;
-    private User loggedUser;
 
     public WorkoutController(User loggedUser) {
+        super(loggedUser);
         this.cardioFactory = new CardioFactory();
         this.muscularFactory = new MuscularFactory();
         this.workouts = FXCollections.observableArrayList();
-        this.loggedUser = loggedUser;
     }
 
     public ObservableList<Workout> getWorkouts() {
@@ -131,12 +130,12 @@ public class WorkoutController extends BaseController {
      * @return
      */
     public ObservableList<Workout> filterByType(String type) {
-        ObservableList<Workout> workouts = DatabaseManager.displayWorkoutLogs(loggedUser.userIdProperty().get());
-        List<Workout> filtered = workouts.parallelStream().filter(workout -> {
+        ObservableList<Workout> workout = DatabaseManager.displayWorkoutLogs(loggedUser.userIdProperty().get());
+        List<Workout> filtered = workout.parallelStream().filter(w -> {
             if (type.equalsIgnoreCase("Muscular")) {
-                return workout instanceof MuscularWorkout;
+                return w instanceof MuscularWorkout;
             } else if (type.equalsIgnoreCase("Cardio")) {
-                return workout instanceof CardioWorkout;
+                return w instanceof CardioWorkout;
             } else {
                 showMessageWindow("Type unknown", "Please choose a valid workout type provided by the dropdown list to filter by.", AlertType.WARNING, ButtonType.OK);
                 return false;
@@ -153,9 +152,9 @@ public class WorkoutController extends BaseController {
      * @return
      */
     public ObservableList<Workout> filterByIntensity(String intensityRating) {
-        ObservableList<Workout> workouts = DatabaseManager.displayWorkoutLogs(loggedUser.userIdProperty().get());
-        List<Workout> filtered = workouts.parallelStream().filter(workout -> {
-            String intensity = getIntensityRange(workout);
+        ObservableList<Workout> workout = DatabaseManager.displayWorkoutLogs(loggedUser.userIdProperty().get());
+        List<Workout> filtered = workout.parallelStream().filter(w -> {
+            String intensity = getIntensityRange(w);
             return intensity.equalsIgnoreCase(intensityRating);
         }).collect(Collectors.toList());
         return FXCollections.observableArrayList(filtered);
@@ -190,9 +189,4 @@ public class WorkoutController extends BaseController {
         }
         return null;
     }
-
-    public ObservableList<Workout> filterByElapsedTime(double minutes) {
-        
-    }
-
 }

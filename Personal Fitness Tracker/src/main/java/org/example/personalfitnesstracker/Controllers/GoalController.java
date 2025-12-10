@@ -1,9 +1,19 @@
 package org.example.personalfitnesstracker.Controllers;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import org.example.personalfitnesstracker.DatabaseManagement.DatabaseManager;
 import org.example.personalfitnesstracker.Factories.*;
+import org.example.personalfitnesstracker.Models.BulkingGoal;
+import org.example.personalfitnesstracker.Models.CardioGoal;
+import org.example.personalfitnesstracker.Models.CuttingGoal;
 import org.example.personalfitnesstracker.Models.Goal;
+import org.example.personalfitnesstracker.Models.MuscularGoal;
+import org.example.personalfitnesstracker.Models.User;
 
 /**
  * Controller responsible for creating and managing different types of goals
@@ -15,13 +25,13 @@ public class GoalController extends BaseController {
     private final CuttingGoalFactory cuttingGoalFactory;
     private final CardioGoalFactory cardioGoalFactory;
     private final MuscularGoalFactory muscularGoalFactory;
-
     private final ObservableList<Goal> goals;
 
     /**
      * Constructor
      */
-    public GoalController() {
+    public GoalController(User loggedUser) {
+        super(loggedUser);
         this.bulkingGoalFactory = new BulkingGoalFactory();
         this.cuttingGoalFactory = new CuttingGoalFactory();
         this.cardioGoalFactory = new CardioGoalFactory();
@@ -206,4 +216,24 @@ public class GoalController extends BaseController {
         goals.add(goal);
         return goal;
     }
+
+    public ObservableList<Goal> filterByGoalType(String type) {
+        ObservableList<Goal> goal = DatabaseManager.displayGoals(loggedUser.userIdProperty().get());
+        List<Goal> filtered = goal.parallelStream().filter(g -> {
+            if (type.equalsIgnoreCase("Muscular")) {
+                return g instanceof MuscularGoal;
+            } else if (type.equalsIgnoreCase("Cardio")) {
+                return g instanceof CardioGoal;
+            } else if (type.equalsIgnoreCase("Bulking")) {
+                return g instanceof BulkingGoal;
+            } else if (type.equalsIgnoreCase("Cutting")) {
+                return g instanceof CuttingGoal;
+            } else {
+                showMessageWindow("Type unknown", "Please choose a valid workout type provided by the dropdown list to filter by.", Alert.AlertType.WARNING, ButtonType.OK);
+                return false;
+            }
+        }).collect(Collectors.toList());
+        return FXCollections.observableArrayList(filtered);
+    }
+
 }
