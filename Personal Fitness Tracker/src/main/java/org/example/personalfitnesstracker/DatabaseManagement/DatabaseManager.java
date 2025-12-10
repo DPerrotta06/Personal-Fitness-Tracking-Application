@@ -817,6 +817,21 @@ public class DatabaseManager { //might be immutable?
     }
 
     /**
+     * 
+     * @param userId 
+     */
+    public static void loadUserDataInParallel(int userId) {
+        Thread[] parallelThreads = new Thread[4];
+        parallelThreads[0] = new Thread(() -> displayNutritionLogs(userId));
+        parallelThreads[1] = new Thread(() -> displayWorkoutLogs(userId));
+        parallelThreads[2] = new Thread(() -> displayGoals(userId));
+        parallelThreads[3] = new Thread(() -> displaySleepingLogs(userId));
+        for (Thread thread : parallelThreads) {
+            thread.start();
+        }
+    }
+
+    /**
      * REMOVE THIS LATER ONLY USE IS TO TEST CONNECTION!!! DELETE AT
      * PRODUCTION!!!
      *

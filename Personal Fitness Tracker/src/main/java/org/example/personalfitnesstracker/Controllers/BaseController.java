@@ -17,9 +17,9 @@ public abstract class BaseController {
     public BaseController(User logggedUser) {
         this.loggedUser = logggedUser;
     }
-    
-    public BaseController(){
-        
+
+    public BaseController() {
+
     }
 
     /**

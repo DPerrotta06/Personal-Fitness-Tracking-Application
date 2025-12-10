@@ -26,6 +26,7 @@ public class MainPageController extends BaseController {
      */
     public void show() {
         mainPageView.show();
+        DatabaseManager.loadUserDataInParallel(loggedUser.userIdProperty().get());
     }
 
     /**
