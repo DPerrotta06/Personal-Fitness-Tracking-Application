@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="690.0" prefWidth="1365.0" style="-fx-background-color: black;" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.personalfitnesstracker.Views.Nutrition.fxml">
+  <tabs>
+    <Tab fx:id="waterTab" text="Water Log">
+      <content>
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: royalblue;">
+               <children>
+                  <TableView fx:id="waterTable" layoutX="15.0" layoutY="112.0" prefHeight="536.0" prefWidth="1336.0" style="-fx-background-color: khaki;">
+                    <columns>
+                      <TableColumn fx:id="waterNutritionID" prefWidth="223.0" text="Nutrition ID" />
+                      <TableColumn fx:id="waterNutriDesc" prefWidth="443.0" text="Nutrition Description" />
+                        <TableColumn fx:id="waterDate" prefWidth="441.0" text="Date" />
+                        <TableColumn fx:id="amtDrank" prefWidth="228.0" text="Amount Drank (L)" />
+                    </columns>
+                  </TableView>
+                  <Label fx:id="waterLabel" layoutX="565.0" layoutY="17.0" text="Water Log Table" textFill="WHITE">
+                     <font>
+                        <Font name="Impact" size="36.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="waterBackButton" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="71.0" text="Back" />
+                  <ComboBox fx:id="waterComboBox" layoutX="1201.0" layoutY="14.0" prefWidth="150.0" promptText="Filter By:" />
+               </children></AnchorPane>
+      </content>
+    </Tab>
+    <Tab fx:id="foodTab" text="Food Log">
+      <content>
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="661.0" prefWidth="1115.0" style="-fx-background-color: maroon;">
+               <children>
+                  <TableView fx:id="foodTable" layoutX="15.0" layoutY="112.0" prefHeight="537.0" prefWidth="1336.0" style="-fx-background-color: khaki;">
+                    <columns>
+                      <TableColumn fx:id="foodNutritionId" prefWidth="75.0" text="Nutrition ID" />
+                      <TableColumn fx:id="foodNutriDesc" prefWidth="322.0" text="Nutrition Description" />
+                        <TableColumn fx:id="foodNutriDate" prefWidth="83.0" text="Date" />
+                        <TableColumn fx:id="foodRecipe" prefWidth="344.0" text="Recipe" />
+                        <TableColumn fx:id="foodCal" prefWidth="89.0" text="Calories" />
+                        <TableColumn fx:id="foodPro" prefWidth="84.0" text="Protein" />
+                        <TableColumn fx:id="foodCarb" prefWidth="83.0" text="Carbs" />
+                        <TableColumn fx:id="foodFat" prefWidth="79.0" text="Fats" />
+                        <TableColumn fx:id="foodServing" prefWidth="139.0" text="Food Serving Size (g)" />
+                    </columns>
+                  </TableView>
+                  <Button fx:id="foodBackButton" layoutX="15.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="71.0" text="Back" />
+                  <ComboBox fx:id="filterFoodComboBox" layoutX="1201.0" layoutY="14.0" prefWidth="150.0" promptText="Filter By:" />
+                  <Label layoutX="575.0" layoutY="17.0" text="Food Log Table" textFill="WHITE">
+                     <font>
+                        <Font name="Impact" size="36.0" />
+                     </font>
+                  </Label>
+               </children></AnchorPane>
+      </content>
+    </Tab>
+  </tabs>
+</TabPane>

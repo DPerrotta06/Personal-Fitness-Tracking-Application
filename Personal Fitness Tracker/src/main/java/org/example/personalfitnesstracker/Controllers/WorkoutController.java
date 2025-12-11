@@ -1,5 +1,6 @@
 package org.example.personalfitnesstracker.Controllers;
 
+import java.time.LocalDate;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.example.personalfitnesstracker.Factories.CardioFactory;
@@ -11,8 +12,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.stream.Collectors;
+import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import org.example.personalfitnesstracker.DatabaseManagement.DatabaseManager;
 import org.example.personalfitnesstracker.Models.CardioWorkout;
 import org.example.personalfitnesstracker.Models.MuscularWorkout;
@@ -24,22 +31,59 @@ import org.example.personalfitnesstracker.Models.User;
  */
 public class WorkoutController extends BaseController {
 
+    @FXML
+    private Button cwBackButton, mwBackButton;
+    @FXML
+    private ComboBox cwFilter, mwFilter;
+    @FXML
+    private TableView<Workout> cardioTable, muscularTable;
+    @FXML
+    private TableColumn<Workout, String> cwName, cwDesc, cwHR, mwName;
+    @FXML
+    private TableColumn<Workout, Double> mwDuration, mwWeight, cwDuration, cwDistance;
+    @FXML
+    private TableColumn<Workout, LocalDate> mwDate, cwDate;
+    @FXML
+    private TableColumn<Workout, Integer> mwID, cwID, mwSets, mwReps, cwCalBurned, mwCalBurned;
+    
+
     private final IWorkoutFactory cardioFactory;
     private final IWorkoutFactory muscularFactory;
     private final ArrayDeque<Workout> recentWorkouts = new ArrayDeque<>();
     private final ObservableList<Workout> workouts;
 
+    /**
+     * 
+     * @param loggedUser 
+     */
     public WorkoutController(User loggedUser) {
         super(loggedUser);
         this.cardioFactory = new CardioFactory();
         this.muscularFactory = new MuscularFactory();
         this.workouts = FXCollections.observableArrayList();
     }
+    
+    @FXML
+    public void initView(){
+        
+    }
+    
+    private void muscularTableLoad(){
+        mwID.setCellValueFactory(new PropertyValueFactory<>("workoutId"));
+        mwName.setCellValueFactory(new PropertyValueFactory<>("workoutName"));
+        
+    }
 
+
+    /**
+     * 
+     * @return 
+     */
     public ObservableList<Workout> getWorkouts() {
         return workouts;
     }
-
+    
+    
     // CARDIO WORKOUT
     public Workout addCardioWorkout(int workoutId,
             String workoutName,
