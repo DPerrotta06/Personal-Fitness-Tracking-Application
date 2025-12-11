@@ -80,9 +80,9 @@ public abstract class BaseController {
      * @return
      */
     public static boolean isValidEmail(String email) {
-        Pattern regex = Pattern.compile("/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"); //regular expression for emails
-        Matcher match = regex.matcher(email);
-        return match.find();
+        // Correct Java regex (no slashes)
+        String regex = "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$";
+        return email != null && email.matches(regex);
     }
 
     /**
@@ -94,10 +94,16 @@ public abstract class BaseController {
      * @return
      */
     public static boolean isValidPassword(byte[] password) {
+        if (password == null) return false;
         String pw = new String(password, StandardCharsets.UTF_8);
-        Pattern regex = Pattern.compile("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&_])[A-Za-z\\d@$!%*?&_]{8,}$");
-        Matcher match = regex.matcher(pw);
-        return match.find();
+        // Correct Java regex (no slashes)
+        String regex =
+                "^(?=.*[a-z])" +        // at least one lowercase
+                        "(?=.*[A-Z])" +         // at least one uppercase
+                        "(?=.*\\d)" +           // at least one number
+                        "(?=.*[@$!%*?&_])" +    // at least one special char
+                        "[A-Za-z\\d@$!%*?&_]{8,}$"; // length ≥ 8
+        return pw.matches(regex);
     }
 
     /**
@@ -109,12 +115,18 @@ public abstract class BaseController {
      * @param button
      */
     protected void showMessageWindow(String title, String msg, Alert.AlertType alertType, ButtonType button) {
-        Alert a = new Alert(alertType.getDeclaringClass().cast(alertType));
-        a.setTitle(title);
-        a.setContentText(msg);
-        a.getButtonTypes().add(button);
-        DialogPane pane = a.getDialogPane();
+
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+
+        alert.getButtonTypes().setAll(button);
+
+        DialogPane pane = alert.getDialogPane();
         pane.setStyle("-fx-background-color: #47d647; -fx-font-size: 14px;");
-        a.showAndWait();
+
+        alert.showAndWait();
     }
+
 }

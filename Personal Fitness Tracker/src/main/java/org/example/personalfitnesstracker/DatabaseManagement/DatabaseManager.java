@@ -13,7 +13,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.Timestamp;
@@ -174,19 +176,21 @@ public class DatabaseManager { //might be immutable?
      * @throws SQLException
      */
     private static void addFood(Food food, int id, Connection conn) throws SQLException {
-        String query = "INSERT INTO Food (NutritionID, Recipe, Calories, Protein, Carbs, Fats, FoodServin) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO Food (NutritionID, Recipe, Calories, Protein, Carbs, Fats, FoodServing) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
         try (PreparedStatement prepStat = conn.prepareStatement(query)) {
             prepStat.setInt(1, id);
             prepStat.setString(2, food.recipeProperty().get());
             prepStat.setInt(3, food.caloriesProperty().get());
-            prepStat.setInt(4, food.caloriesProperty().get());
-            prepStat.setInt(5, food.proteinProperty().get());
-            prepStat.setInt(6, food.carbsProperty().get());
-            prepStat.setInt(7, food.fatsProperty().get());
-            prepStat.setDouble(8, food.foodServingSizeProperty().get());
+            prepStat.setInt(4, food.proteinProperty().get());
+            prepStat.setInt(5, food.carbsProperty().get());
+            prepStat.setInt(6, food.fatsProperty().get());
+            prepStat.setDouble(7, food.foodServingSizeProperty().get());
             prepStat.executeUpdate();
         }
     }
+
 
     /**
      *
@@ -196,43 +200,61 @@ public class DatabaseManager { //might be immutable?
      * @throws SQLException
      */
     private static void addWater(Water water, int id, Connection conn) throws SQLException {
-        String query = "INSERT INTO Water (NutritionId, AmountInLiters) VALUES (?, ?)";
+        String query = "INSERT INTO Water (NutritionID, AmountInLiters) VALUES (?, ?)";
+
         try (PreparedStatement prepStat = conn.prepareStatement(query)) {
             prepStat.setInt(1, id);
-            prepStat.setDouble(id, water.amountInLitersProperty().get());
+            prepStat.setDouble(2, water.amountInLitersProperty().get());
             prepStat.executeUpdate();
         }
     }
+
 
     /**
      *
      * @param goal
      */
     public static void addNewGoalToDb(Goal goal) {
-        String query = "INSERT INTO Goal (GoalID, GoalName, GoalDescription, IsCompleted, UserID)";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+
+        String query = """
+        INSERT INTO Goal (GoalName, GoalDescription, IsCompleted, UserID)
+        VALUES (?, ?, ?, ?)
+    """;
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW);
+             PreparedStatement prepStat = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+
             prepStat.setString(1, goal.goalNameProperty().get());
             prepStat.setString(2, goal.goalDescriptionProperty().get());
             prepStat.setBoolean(3, goal.isCompletedProperty().get());
             prepStat.setInt(4, goal.userIdProperty().get());
+
             prepStat.executeUpdate();
+
             ResultSet parentRef = prepStat.getGeneratedKeys();
             if (parentRef.next()) {
+
                 int goalId = parentRef.getInt(1);
+
                 if (goal instanceof CardioGoal cardioGoal) {
                     addCardioGoal(cardioGoal, goalId, conn);
+
                 } else if (goal instanceof MuscularGoal muscularGoal) {
                     addMuscularGoal(muscularGoal, goalId, conn);
+
                 } else if (goal instanceof BulkingGoal bulkingGoal) {
-                    addBulkingGoal((BulkingGoal) goal, goalId, conn);
+                    addBulkingGoal(bulkingGoal, goalId, conn);
+
                 } else if (goal instanceof CuttingGoal cuttingGoal) {
                     addCuttingGoal(cuttingGoal, goalId, conn);
                 }
             }
+
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
+            logger.log(Level.SEVERE, "Error inserting goal", e);
         }
     }
+
 
     /**
      *
@@ -403,27 +425,39 @@ public class DatabaseManager { //might be immutable?
      */
     public static User getUserByEmailAndPw(String email, byte[] password) {
         User user = null;
-        String query = "SELECT UserID FROM Users WHERE Email = ? AND Password = ?";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
+
+        String query = """
+        SELECT UserID, Password, Email, Weight, Height, DateOfBirth, Username
+        FROM Users
+        WHERE Email = ? AND Password = ?
+    """;
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW);
+             PreparedStatement prepStat = conn.prepareStatement(query)) {
+
             prepStat.setString(1, email);
             prepStat.setBytes(2, password);
-            ResultSet set = prepStat.executeQuery();
-            if (set.next()) {
-                user = new User(
-                        set.getInt("UserID"),
-                        set.getBytes("Password"),
-                        set.getString("Email"),
-                        set.getDouble("Weight"),
-                        set.getDouble("Height"),
-                        set.getDate("DateOfBirth").toLocalDate(),
-                        set.getString("Username")
-                );
+
+            try (ResultSet set = prepStat.executeQuery()) {
+                if (set.next()) {
+                    user = new User(
+                            set.getInt("UserID"),
+                            set.getBytes("Password"),
+                            set.getString("Email"),
+                            set.getDouble("Weight"),
+                            set.getDouble("Height"),
+                            set.getDate("DateOfBirth").toLocalDate(),
+                            set.getString("Username")
+                    );
+                }
             }
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
+            logger.log(Level.SEVERE, "Error connecting to database.", e);
         }
+
         return user;
     }
+
 
     /**
      * Retrieving all data from the Sleep table WORK IN PROGRESS
@@ -548,65 +582,74 @@ public class DatabaseManager { //might be immutable?
      * @return
      */
     public static ObservableList<Goal> displayGoals(int userID) {
-        ObservableList<Goal> goal = FXCollections.observableArrayList();
-        String query = "SELECT g.*, m.HeaviestLift, m.MaxRepCount, m.MaxSetsGoal, ca.TargetRestingHeartRate, ca.MaxDistance, b.TargetWeightGain, b.TargetDailyCaloricIntake, cu.TargetWeightLoss, cu.TargetDailyCaloricDeficit"
-                + "FROM Goal g LEFT JOIN MuscularGoal m ON g.WorkoutID = m.WorkoutID "
-                + "LEFT JOIN CardioGoal ca ON g.WorkoutID = ca.WorkoutID "
-                + "LEFT JOIN BulkingGoal b ON w.WorkoutID = b.WorkoutID "
-                + "LEFT JOIN CuttingGoal cu ON w.WorkoutID = cu.WorkoutID "
-                + "WHERE UserID = ?";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
-            prepStat.setInt(1, userID);
-            ResultSet set = prepStat.executeQuery();
-            while (set.next()) {
-                if (set.getObject("MaxRepCount") != null) {
-                    goal.add(new MuscularGoal(
-                            set.getInt("WorkoutID"),
-                            set.getString("GoalName"),
-                            set.getString("GoalDescription"),
-                            set.getBoolean("IsCompleted"),
-                            set.getInt("UserID"),
-                            set.getDouble("HeaviestLift"),
-                            set.getInt("MaxRepCount"),
-                            set.getInt("MaxSetsGoal")
+
+        ObservableList<Goal> goals = FXCollections.observableArrayList();
+
+        String query = """
+        SELECT g.GoalID, g.GoalName, g.GoalDescription, g.IsCompleted, g.UserID,
+               mg.HeaviestLift, mg.MaxRepCount, mg.MaxSetsGoal,
+               cg.TargetRestingHeartRate, cg.MaxDistance,
+               b.TargetWeightGain, b.TargetDailyCaloricIntake,
+               cu.TargetWeightLoss, cu.TargetDailyCaloricDeficit
+        FROM Goal g
+        LEFT JOIN MuscularGoal mg ON g.GoalID = mg.GoalID
+        LEFT JOIN CardioGoal cg ON g.GoalID = cg.GoalID
+        LEFT JOIN BulkingGoal b ON g.GoalID = b.GoalID
+        LEFT JOIN CuttingGoal cu ON g.GoalID = cu.GoalID
+        WHERE g.UserID = ?
+    """;
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW);
+             PreparedStatement ps = conn.prepareStatement(query)) {
+
+            ps.setInt(1, userID);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+
+                int goalId = rs.getInt("GoalID");
+                String name = rs.getString("GoalName");
+                String desc = rs.getString("GoalDescription");
+                boolean completed = rs.getBoolean("IsCompleted");
+
+                if (rs.getObject("HeaviestLift") != null) {
+                    goals.add(new MuscularGoal(
+                            goalId, name, desc, completed, userID,
+                            rs.getDouble("HeaviestLift"),
+                            rs.getInt("MaxRepCount"),
+                            rs.getInt("MaxSetsGoal")
                     ));
-                } else if (set.getObject("TargetRestingHeartRate") != null) {
-                    goal.add(new CardioGoal(
-                            set.getInt("WorkoutID"),
-                            set.getString("GoalName"),
-                            set.getString("GoalDescription"),
-                            set.getBoolean("IsCompleted"),
-                            set.getInt("UserID"),
-                            set.getInt("TargetRestingHeartRate"),
-                            set.getDouble("MaxDistance")
+                }
+                else if (rs.getObject("TargetRestingHeartRate") != null) {
+                    goals.add(new CardioGoal(
+                            goalId, name, desc, completed, userID,
+                            rs.getInt("TargetRestingHeartRate"),
+                            rs.getDouble("MaxDistance")
                     ));
-                } else if (set.getObject("TargetWeightGain") != null) {
-                    goal.add(new BulkingGoal(
-                            set.getInt("WorkoutID"),
-                            set.getString("GoalName"),
-                            set.getString("GoalDescription"),
-                            set.getBoolean("IsCompleted"),
-                            set.getInt("UserID"),
-                            set.getDouble("TargetWeightGain"),
-                            set.getInt("TargetDailyCaloricIntake")
+                }
+                else if (rs.getObject("TargetWeightGain") != null) {
+                    goals.add(new BulkingGoal(
+                            goalId, name, desc, completed, userID,
+                            rs.getDouble("TargetWeightGain"),
+                            rs.getInt("TargetDailyCaloricIntake")
                     ));
-                } else {
-                    goal.add(new CuttingGoal(
-                            set.getInt("WorkoutID"),
-                            set.getString("GoalName"),
-                            set.getString("GoalDescription"),
-                            set.getBoolean("IsCompleted"),
-                            set.getInt("UserID"),
-                            set.getDouble("TargetWeightLoss"),
-                            set.getInt("TargetDailyCaloricDeficit")
+                }
+                else if (rs.getObject("TargetWeightLoss") != null) {
+                    goals.add(new CuttingGoal(
+                            goalId, name, desc, completed, userID,
+                            rs.getDouble("TargetWeightLoss"),
+                            rs.getInt("TargetDailyCaloricDeficit")
                     ));
                 }
             }
+
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
+            logger.log(Level.SEVERE, "Error loading goals", e);
         }
-        return goal;
+
+        return goals;
     }
+
 
     public static double getDailyCalories(int userId) {
         String sql = """
@@ -714,6 +757,82 @@ public class DatabaseManager { //might be immutable?
         return data;
     }
 
+    public static List<Food> getAllFood(int userId) {
+        List<Food> foods = new ArrayList<>();
+
+        String sql = """
+        SELECT n.NutritionID, n.NutritionDescription, n.TimeStamp, n.UserID,
+               f.Recipe, f.Calories, f.Protein, f.Carbs, f.Fats, f.FoodServing
+        FROM Nutrition n
+        JOIN Food f ON n.NutritionID = f.NutritionID
+        WHERE n.UserID = ?
+        ORDER BY n.TimeStamp DESC
+    """;
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                foods.add(new Food(
+                        rs.getInt("NutritionID"),
+                        rs.getString("NutritionDescription"),
+                        rs.getTimestamp("TimeStamp").toLocalDateTime(),
+                        rs.getInt("UserID"),
+                        rs.getString("Recipe"),
+                        rs.getInt("Calories"),
+                        rs.getInt("Protein"),
+                        rs.getInt("Carbs"),
+                        rs.getInt("Fats"),
+                        rs.getDouble("FoodServing")
+                ));
+            }
+
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error loading Food entries.", e);
+        }
+
+        return foods;
+    }
+
+    public static List<Water> getAllWater(int userId) {
+        List<Water> waterList = new ArrayList<>();
+
+        String sql = """
+        SELECT n.NutritionID, n.NutritionDescription, n.TimeStamp, n.UserID,
+               w.AmountInLiters
+        FROM Nutrition n
+        JOIN Water w ON n.NutritionID = w.NutritionID
+        WHERE n.UserID = ?
+        ORDER BY n.TimeStamp DESC
+    """;
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                waterList.add(new Water(
+                        rs.getInt("NutritionID"),
+                        rs.getString("NutritionDescription"),
+                        rs.getTimestamp("TimeStamp").toLocalDateTime(),
+                        rs.getInt("UserID"),
+                        rs.getDouble("AmountInLiters")
+                ));
+            }
+
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error loading Water entries.", e);
+        }
+
+        return waterList;
+    }
+
+
     //====================================UPDATE====================================
     /**
      *
@@ -754,25 +873,42 @@ public class DatabaseManager { //might be immutable?
      * @param goal
      */
     public static void updateGoal(Goal goal) {
-        String query = "UPDATE Goal SET GoalName = ?, GoalDescription = ?, IsCompleted = ?, WHERE UserID = ?";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
+
+        String query = """
+        UPDATE Goal
+        SET GoalName = ?, GoalDescription = ?, IsCompleted = ?
+        WHERE GoalID = ?
+    """;
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW);
+             PreparedStatement prepStat = conn.prepareStatement(query)) {
+
             prepStat.setString(1, goal.goalNameProperty().get());
             prepStat.setString(2, goal.goalDescriptionProperty().get());
             prepStat.setBoolean(3, goal.isCompletedProperty().get());
+            prepStat.setInt(4, goal.goalIdProperty().get());
+
             prepStat.executeUpdate();
+
+            // Update subtype-specific tables
             if (goal instanceof MuscularGoal mg) {
                 updateMuscularGoal(mg, conn);
+
             } else if (goal instanceof CardioGoal cg) {
                 updateCardioGoal(cg, conn);
+
             } else if (goal instanceof BulkingGoal bg) {
                 updateBulkingGoal(bg, conn);
+
             } else if (goal instanceof CuttingGoal cu) {
                 updateCuttingGoal(cu, conn);
             }
+
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
+            logger.log(Level.SEVERE, "Error connecting to database.", e);
         }
     }
+
 
     /**
      *
@@ -786,9 +922,11 @@ public class DatabaseManager { //might be immutable?
             prepStat.setDouble(1, mg.heaviestLiftProperty().get());
             prepStat.setInt(2, mg.maxRepCountProperty().get());
             prepStat.setInt(3, mg.maxSetsCount().get());
+            prepStat.setInt(4, mg.goalIdProperty().get());
             prepStat.executeUpdate();
         }
     }
+
 
     /**
      *
@@ -801,9 +939,11 @@ public class DatabaseManager { //might be immutable?
         try (PreparedStatement prepStat = conn.prepareStatement(query)) {
             prepStat.setInt(1, cg.targetRestingHeartRateProperty().get());
             prepStat.setDouble(2, cg.maxDistanceProperty().get());
+            prepStat.setInt(3, cg.goalIdProperty().get());
             prepStat.executeUpdate();
         }
     }
+
 
     /**
      *
@@ -816,9 +956,11 @@ public class DatabaseManager { //might be immutable?
         try (PreparedStatement prepStat = conn.prepareStatement(query)) {
             prepStat.setDouble(1, bg.targetWeightGainProperty().get());
             prepStat.setInt(2, bg.targetCaloricIntakeProperty().get());
+            prepStat.setInt(3, bg.goalIdProperty().get());
             prepStat.executeUpdate();
         }
     }
+
 
     /**
      *
@@ -827,13 +969,15 @@ public class DatabaseManager { //might be immutable?
      * @throws SQLException
      */
     private static void updateCuttingGoal(CuttingGoal cu, Connection conn) throws SQLException {
-        String query = "UPDATE CuttingGoal SET TargetWeightLoss = ?, TargetDailyCaloricDeficit = ? WHERE UserID = ?";
+        String query = "UPDATE CuttingGoal SET TargetWeightLoss = ?, TargetDailyCaloricDeficit = ? WHERE GoalID = ?";
         try (PreparedStatement prepStat = conn.prepareStatement(query)) {
             prepStat.setDouble(1, cu.targetWeightLossProperty().get());
             prepStat.setInt(2, cu.targetCaloricDeficitProperty().get());
+            prepStat.setInt(3, cu.goalIdProperty().get());
             prepStat.executeUpdate();
         }
     }
+
 
     /**
      *
@@ -894,20 +1038,35 @@ public class DatabaseManager { //might be immutable?
      * @param nutrition
      */
     public static void updateNutrition(Nutrition nutrition) {
-        String query = "UPDATE Nutrition SET NutritionDescription = ?, TimeStamp = ? WHERE UserID = ?";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
-            prepStat.setString(1, nutrition.nutritionDescriptionProperty().get());
-            prepStat.setTimestamp(2, Timestamp.valueOf(nutrition.timeStampProperty()));
-            prepStat.executeUpdate();
+
+        String sql = """
+        UPDATE Nutrition
+        SET NutritionDescription = ?, TimeStamp = ?
+        WHERE NutritionID = ?
+    """;
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, nutrition.nutritionDescriptionProperty().get());
+            ps.setTimestamp(2, Timestamp.valueOf(nutrition.timeStampProperty()));
+            ps.setInt(3, nutrition.nutritionIdProperty().get());
+
+            ps.executeUpdate();
+
+            // Update child-specific tables
             if (nutrition instanceof Food food) {
                 updateFood(food, conn);
             } else if (nutrition instanceof Water water) {
                 updateWater(water, conn);
             }
+
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
+            logger.log(Level.SEVERE, "Error updating Nutrition.", e);
         }
     }
+
+
 
     /**
      *
@@ -916,17 +1075,29 @@ public class DatabaseManager { //might be immutable?
      * @throws SQLException
      */
     private static void updateFood(Food food, Connection conn) throws SQLException {
-        String query = "UPDATE Food SET Recipe = ?, Calories = ?, Protein = ?, Carbs = ?, Fats = ?, FoodServing = ? WHERE NutritionID = ?";
-        try (PreparedStatement prepStat = conn.prepareStatement(query)) {
-            prepStat.setString(1, food.recipeProperty().get());
-            prepStat.setInt(2, food.caloriesProperty().get());
-            prepStat.setInt(3, food.proteinProperty().get());
-            prepStat.setInt(4, food.carbsProperty().get());
-            prepStat.setInt(5, food.fatsProperty().get());
-            prepStat.setDouble(6, food.foodServingSizeProperty().get());
-            prepStat.executeUpdate();
+
+        String sql = """
+        UPDATE Food
+        SET Recipe = ?, Calories = ?, Protein = ?, Carbs = ?, Fats = ?, FoodServing = ?
+        WHERE NutritionID = ?
+    """;
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, food.recipeProperty().get());
+            ps.setInt(2, food.caloriesProperty().get());
+            ps.setInt(3, food.proteinProperty().get());
+            ps.setInt(4, food.carbsProperty().get());
+            ps.setInt(5, food.fatsProperty().get());
+            ps.setDouble(6, food.foodServingSizeProperty().get());
+
+            ps.setInt(7, food.nutritionIdProperty().get());
+
+            ps.executeUpdate();
         }
     }
+
+
 
     /**
      *
@@ -935,12 +1106,22 @@ public class DatabaseManager { //might be immutable?
      * @throws SQLException
      */
     private static void updateWater(Water water, Connection conn) throws SQLException {
-        String query = "UPDATE Water SET AmountInLiters = ? WHERE NutritionID = ?";
-        try (PreparedStatement prepStat = conn.prepareStatement(query)) {
-            prepStat.setDouble(1, water.amountInLitersProperty().get());
-            prepStat.executeUpdate();
+
+        String sql = """
+        UPDATE Water
+        SET AmountInLiters = ?
+        WHERE NutritionID = ?
+    """;
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setDouble(1, water.amountInLitersProperty().get());
+            ps.setInt(2, water.nutritionIdProperty().get());
+
+            ps.executeUpdate();
         }
     }
+
 
     //====================================DELETE====================================
     /**
@@ -959,6 +1140,35 @@ public class DatabaseManager { //might be immutable?
         }
     }
 
+    public static void deleteNutrition(int nutritionId) {
+
+        String deleteWater = "DELETE FROM Water WHERE NutritionID = ?";
+        String deleteFood  = "DELETE FROM Food  WHERE NutritionID = ?";
+        String deleteParent = "DELETE FROM Nutrition WHERE NutritionID = ?";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW)) {
+
+            // Try deleting from both child tables; only one will actually match.
+            try (PreparedStatement psW = conn.prepareStatement(deleteWater);
+                 PreparedStatement psF = conn.prepareStatement(deleteFood);
+                 PreparedStatement psN = conn.prepareStatement(deleteParent)) {
+
+                psW.setInt(1, nutritionId);
+                psW.executeUpdate();
+
+                psF.setInt(1, nutritionId);
+                psF.executeUpdate();
+
+                psN.setInt(1, nutritionId);
+                psN.executeUpdate();
+            }
+
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error deleting nutrition record.", e);
+        }
+    }
+
+
     /**
      *
      * @param userId
@@ -971,22 +1181,6 @@ public class DatabaseManager { //might be immutable?
         parallelThreads[3] = new Thread(() -> displaySleepingLogs(userId));
         for (Thread thread : parallelThreads) {
             thread.start();
-        }
-    }
-
-    /**
-     * REMOVE THIS LATER ONLY USE IS TO TEST CONNECTION!!! DELETE AT
-     * PRODUCTION!!!
-     *
-     * @return
-     */
-    public static boolean testConnection() {
-        try (Connection conn = DriverManager.getConnection(URL, USER, PW)) {
-            System.out.println("Connection successful");
-            return true;
-        } catch (SQLException e) {
-            System.out.println("Connection failed");
-            return false;
         }
     }
 }

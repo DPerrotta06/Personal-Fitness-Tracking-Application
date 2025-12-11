@@ -21,6 +21,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
+import org.example.personalfitnesstracker.Views.LoginView;
+
+import static javafx.scene.control.ButtonType.OK;
 
 public class MainPageController extends BaseController {
 
@@ -42,15 +45,14 @@ public class MainPageController extends BaseController {
     @FXML
     private VBox weeklyChartContainer;
     @FXML
-    private Button homeButton;
-    @FXML
     private Button addEntryButton;
     @FXML
     private Button goalsButton;
     @FXML
     private Button logoutButton;
+    @FXML
+    private Button nutritionButton;
 
-    //private User currentUser; //We can just use the loggedUser provided by the base controller
     // -------------------------------------------------------------------------
     // INITIALIZE
     // -------------------------------------------------------------------------
@@ -66,6 +68,8 @@ public class MainPageController extends BaseController {
     // SET USER (called by LoginController)
     // -------------------------------------------------------------------------
     public void setUser(User user) {
+        this.loggedUser = user;
+
         welcomeLabel.setText("Welcome, " + user.usernameProperty().get());
         dateLabel.setText(LocalDate.now().toString());
 
@@ -109,11 +113,29 @@ public class MainPageController extends BaseController {
      * Loading the user's BMI by using the bmi calculation helper methods
      */
     private void loadBMI() {
-        if (loggedUser == null) {
-            return;
-        }
-        bmiStatusLabel.setText(String.format("BMI: %.1f (%s)", calculateBmiNumeric(loggedUser), calculateBmiVerbal(loggedUser)));
+        if (loggedUser == null) return;
+
+        // DB stores:
+        // - Weight in POUNDS
+        // - Height in CENTIMETERS
+        double weightLbs = loggedUser.weightProperty().get();
+        double heightCm  = loggedUser.heightProperty().get();
+
+        // Convert to metric for BMI calculation
+        double heightMeters = heightCm / 100.0;            // cm → m
+        double weightKg     = weightLbs * 0.45359237;      // lb → kg
+
+        double bmi = weightKg / (heightMeters * heightMeters);
+
+        String category;
+        if (bmi < 18.5)       category = "Underweight";
+        else if (bmi < 25.0)  category = "Healthy";
+        else if (bmi < 30.0)  category = "Overweight";
+        else                  category = "Obese";
+
+        bmiStatusLabel.setText(String.format("BMI: %.1f (%s)", bmi, category));
     }
+
 
     // -------------------------------------------------------------------------
     // WEEKLY CHART
@@ -159,9 +181,23 @@ public class MainPageController extends BaseController {
     private void setupHandlers() {
 
         logoutButton.setOnAction(e -> {
-            showMessageWindow("Logout", "You have been logged out.", AlertType.INFORMATION, ButtonType.OK);
-            logoutButton.getScene().getWindow().hide();
+            try {
+                // Close the current window
+                Stage currentStage = (Stage) logoutButton.getScene().getWindow();
+                showMessageWindow("Logout", "You have been logged out.", AlertType.INFORMATION, ButtonType.OK);
+                currentStage.close();
+
+                // Load Login View again
+                LoginView loginView = new LoginView();
+                LoginController loginController = new LoginController(loginView);
+                loginController.show();
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         });
+
+
         addEntryButton.setOnAction(event -> {
             try {
                 FXMLLoader loader = new FXMLLoader(
@@ -173,9 +209,7 @@ public class MainPageController extends BaseController {
                 controller.setUser(loggedUser);
 
                 //Tell AddEntryController how to refresh the main page
-                controller.setOnEntrySaved(() -> {
-                    loadAllSections();   // Reload calories, water, sleep, BMI, chart
-                });
+                controller.setOnEntrySaved(this::loadAllSections);
 
                 Stage stage = new Stage();
                 stage.setTitle("Add Entry");
@@ -186,36 +220,41 @@ public class MainPageController extends BaseController {
                 
             }
         });
-        goalsButton.setOnAction(e -> showMessageWindow("Goals", "Goals page not implemented yet.", AlertType.INFORMATION, ButtonType.OK));
-    }
+        goalsButton.setOnAction(e -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/org/example/personalfitnesstracker/Views/GoalsView.fxml")
+                );
+                Parent root = loader.load();
 
-    /**
-     * Calculates the user's BMI based on their height and weight
-     *
-     * @param user
-     * @return
-     */
-    public double calculateBmiNumeric(User user) {
-        return user.weightProperty().get() / (Math.pow((user.heightProperty().get() / 1000), 2));
-    }
+                GoalsViewController controller = loader.getController();
+                controller.setUser(loggedUser);
 
-    /**
-     * Gets the numeric value of the User's BMI and assigns a verbal value
-     *
-     * @param user
-     * @return
-     */
-    public String calculateBmiVerbal(User user) {
-        double bmiNumber = calculateBmiNumeric(user);
-        if (bmiNumber < 18.0) {
-            return "Underweight";
-        } else if (bmiNumber >= 18.0 && bmiNumber <= 24.9) {
-            return "Normal";
-        } else if (bmiNumber >= 25 && bmiNumber <= 29.9) {
-            return "Overweight";
-        } else {
-            return "Obese";
-        }
-    }
+                Stage stage = new Stage();
+                stage.setTitle("Goals");
+                stage.setScene(new Scene(root));
+                stage.show();
 
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+        nutritionButton.setOnAction(e -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/personalfitnesstracker/Views/Nutrition.fxml"));
+                Parent root = loader.load();
+
+                NutritionController controller = loader.getController();
+                controller.setUser(loggedUser);
+
+                Stage stage = new Stage();
+                stage.setTitle("Nutrition Log");
+                stage.setScene(new Scene(root));
+                stage.show();
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+    }
 }

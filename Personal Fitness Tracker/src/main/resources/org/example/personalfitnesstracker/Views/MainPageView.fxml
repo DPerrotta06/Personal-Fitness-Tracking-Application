@@ -114,13 +114,13 @@
                 <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
 
-            <Button fx:id="homeButton"
-                    text="Home"
+            <Button fx:id="addEntryButton"
+                    text="Add Entry"
                     style="-fx-background-color: #1435d1; -fx-text-fill: white; -fx-font-size: 14; -fx-background-radius: 8;"
                     maxWidth="150"/>
 
-            <Button fx:id="addEntryButton"
-                    text="Add Entry"
+            <Button fx:id="nutritionButton"
+                    text="Nutrition"
                     style="-fx-background-color: #1435d1; -fx-text-fill: white; -fx-font-size: 14; -fx-background-radius: 8;"
                     maxWidth="150"/>
 
@@ -133,6 +133,7 @@
                     text="Logout"
                     style="-fx-background-color: #e63946; -fx-text-fill: white; -fx-font-size: 14; -fx-background-radius: 8;"
                     maxWidth="150"/>
+
 
         </HBox>
     </bottom>

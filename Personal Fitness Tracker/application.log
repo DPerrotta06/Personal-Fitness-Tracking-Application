@@ -56,3 +56,9 @@ Dec 10, 2025 2:01:21 AM org.example.personalfitnesstracker.Controllers.BaseContr
 INFO: User @2 logged in!
 Dec 10, 2025 2:36:35 AM org.example.personalfitnesstracker.Controllers.BaseController log
 INFO: User @1 logged in!
+Dec 11, 2025 2:39:33 AM org.example.personalfitnesstracker.Controllers.BaseController log
+INFO: User @1 does not exist
+Dec 11, 2025 3:20:18 AM org.example.personalfitnesstracker.Controllers.BaseController log
+INFO: User @buhaan does not exist or incorrect password.
+Dec 11, 2025 6:34:35 AM org.example.personalfitnesstracker.Controllers.BaseController log
+INFO: User  does not exist or incorrect password.

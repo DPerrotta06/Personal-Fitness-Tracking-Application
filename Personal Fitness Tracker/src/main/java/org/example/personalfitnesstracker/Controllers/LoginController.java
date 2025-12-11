@@ -4,6 +4,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import org.example.personalfitnesstracker.DatabaseManagement.DatabaseManager;
 import org.example.personalfitnesstracker.Models.User;
@@ -11,6 +12,7 @@ import org.example.personalfitnesstracker.Views.CreateAccountView;
 import org.example.personalfitnesstracker.Views.LoginView;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
@@ -46,6 +48,23 @@ public final class LoginController extends BaseController {
 
             String email = loginView.getEmailField().getText().trim();
             String password = loginView.getPasswordField().getText().trim();
+            byte[] pwBytes = password.getBytes(StandardCharsets.UTF_8);
+
+            if (!isValidEmail(email)) {
+                showMessageWindow("Invalid Email",
+                        "Please enter a valid email address.",
+                        Alert.AlertType.ERROR,
+                        ButtonType.OK);
+                return;
+            }
+
+            if (!isValidPassword(pwBytes)) {
+                showMessageWindow("Invalid Password Format",
+                        "Passwords must match required formatting.",
+                        Alert.AlertType.ERROR,
+                        ButtonType.OK);
+                return;
+            }
 
             if (DatabaseManager.userExists(email, password.getBytes())) {
                 showMessageWindow("Login Status", "Login Successful!", AlertType.INFORMATION, ButtonType.OK);

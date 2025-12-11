@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="TOP_CENTER" prefHeight="635.0" prefWidth="829.0" spacing="15.0" style="-fx-background-color: black; -fx-padding: 20;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.personalfitnesstracker.Controllers.GoalsViewController">
+
+    <!-- TITLE -->
+    <Label style="-fx-text-fill: white; -fx-font-size: 24; -fx-font-weight: bold;" text="Goals" />
+
+    <!-- FORM -->
+    <GridPane alignment="CENTER" hgap="10" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints halignment="RIGHT" minWidth="150.0" />
+            <ColumnConstraints halignment="LEFT" minWidth="300.0" />
+        </columnConstraints>
+
+        <!-- TYPE -->
+        <Label style="-fx-text-fill: white; -fx-font-weight: bold;" text="Goal Type:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+        <ComboBox fx:id="goalTypeCombo" prefWidth="200" GridPane.columnIndex="1" />
+
+        <!-- NAME -->
+        <Label style="-fx-text-fill: white; -fx-font-weight: bold;" text="Name:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+        <TextField fx:id="goalNameField" promptText="e.g. Run 5km in 30 minutes" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+        <!-- DESCRIPTION -->
+        <Label style="-fx-text-fill: white; -fx-font-weight: bold;" text="Description:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+        <TextArea fx:id="goalDescriptionArea" prefRowCount="3" prefWidth="260" promptText="Optional details about this goal" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+        <!-- EXTRA FIELD 1 -->
+        <Label fx:id="extraLabel1" style="-fx-text-fill: white; -fx-font-weight: bold;" text="Extra 1:" GridPane.rowIndex="3" />
+        <TextField fx:id="extraField1" promptText="Depends on goal type" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+        <!-- EXTRA FIELD 2 -->
+        <Label fx:id="extraLabel2" style="-fx-text-fill: white; -fx-font-weight: bold;" text="Extra 2:" GridPane.rowIndex="4" />
+        <TextField fx:id="extraField2" promptText="Depends on goal type" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+        <!-- EXTRA FIELD 3 -->
+        <Label fx:id="extraLabel3" style="-fx-text-fill: white; -fx-font-weight: bold;" text="Extra 3:" GridPane.rowIndex="5" />
+        <TextField fx:id="extraField3" promptText="Depends on goal type" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+   
+             <!-- TABLE -->
+       <TableView fx:id="goalsTable" prefHeight="250" prefWidth="700" style="-fx-background-color: #1a1a1a;" GridPane.columnIndex="1" GridPane.rowIndex="6">
+           <columns>
+               <TableColumn fx:id="nameColumn" prefWidth="180" text="Name" />
+               <TableColumn fx:id="descriptionColumn" prefWidth="260" text="Description" />
+               <TableColumn fx:id="typeColumn" prefWidth="120" text="Type" />
+               <TableColumn fx:id="completedColumn" prefWidth="80" text="Done" />
+           </columns>
+       </TableView>
+      <rowConstraints>
+         <RowConstraints />
+         <RowConstraints />
+         <RowConstraints />
+         <RowConstraints />
+         <RowConstraints />
+         <RowConstraints />
+         <RowConstraints />
+      </rowConstraints>
+    </GridPane>
+
+    <!-- BUTTONS -->
+    <HBox alignment="CENTER" spacing="15">
+        <Button fx:id="addGoalButton" style="-fx-background-color: #1435d1; -fx-text-fill: white;                        -fx-font-size: 14; -fx-background-radius: 8;                        -fx-padding: 8 18;" text="Add Goal" />
+
+        <Button fx:id="markCompletedButton" style="-fx-background-color: #1f7a1f; -fx-text-fill: white;                        -fx-font-size: 14; -fx-background-radius: 8;                        -fx-padding: 8 18;" text="Toggle Completed" />
+
+        <Button onAction="#onCloseClicked" style="-fx-background-color: #e63946; -fx-text-fill: white;                        -fx-font-size: 14; -fx-background-radius: 8;                        -fx-padding: 8 18;" text="Close" />
+    </HBox>
+
+</VBox>

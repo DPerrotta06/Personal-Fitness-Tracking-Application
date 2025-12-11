@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<TabPane prefHeight="650" prefWidth="900" style="-fx-background-color: black;" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.personalfitnesstracker.Controllers.NutritionController">
+
+    <tabs>
+
+        <Tab fx:id="waterTab" text="Water Log">
+
+            <content>
+                <AnchorPane prefHeight="590.0" prefWidth="900.0" style="-fx-background-color: #0d47a1;">
+
+                    <Label layoutX="30.0" layoutY="90.0" text="Description:" textFill="WHITE" />
+                    <TextField fx:id="waterDescField" layoutX="99.0" layoutY="86.0" prefWidth="250" />
+
+                    <Label layoutX="363.0" layoutY="91.0" text="Amount (L):" textFill="WHITE" />
+                    <TextField fx:id="waterAmountField" layoutX="431.0" layoutY="87.0" prefWidth="120" />
+
+                    <Button fx:id="addWaterButton" layoutX="564.0" layoutY="86.0" prefHeight="28" prefWidth="120" style="-fx-background-color: #1435d1; -fx-text-fill: white;" text="Add Water" />
+
+
+                    <TableView fx:id="waterTable" layoutX="20" layoutY="152.0" prefHeight="448.0" prefWidth="860" style="-fx-background-color: #1a1a1a; -fx-text-fill: white;">
+                        <columns>
+                            <TableColumn fx:id="waterNutritionID" prefWidth="150" text="Nutrition ID" />
+                            <TableColumn fx:id="waterNutriDesc" prefWidth="300" text="Nutrition Description" />
+                            <TableColumn fx:id="waterDate" prefWidth="226.0" text="Date" />
+                            <TableColumn fx:id="amtDrank" prefWidth="184.0" text="Amount Drank (L)" />
+                        </columns>
+                    </TableView>
+
+                    <Label fx:id="waterLabel" layoutX="372.0" layoutY="22.0" style="-fx-font-size: 32px; -fx-font-weight: bold;" text="Water Log" textFill="white" />
+
+                    <Button fx:id="waterBackButton" layoutX="30.0" layoutY="33.0" style="-fx-background-color: #1435d1; -fx-text-fill: white; -fx-background-radius: 8;" text="Back" />
+
+                    <ComboBox fx:id="waterComboBox" layoutX="695.0" layoutY="88.0" prefWidth="150" promptText="Filter By:" style="-fx-background-color: #1a1a1a; -fx-text-fill: white;" />
+                </AnchorPane>
+            </content>
+
+        </Tab>
+
+        <Tab fx:id="foodTab" text="Food Log">
+
+            <content>
+                <AnchorPane style="-fx-background-color: #8b0000;">
+
+                    <!-- INPUT SECTION FOR FOOD -->
+                    <Label layoutX="21.0" layoutY="77.0" text="Description:" textFill="WHITE" />
+                    <TextField fx:id="foodDescField" layoutX="110.0" layoutY="73.0" prefWidth="250" />
+
+                    <Label layoutX="384.0" layoutY="77.0" text="Recipe:" textFill="WHITE" />
+                    <TextField fx:id="foodRecipeField" layoutX="436.0" layoutY="73.0" prefHeight="25.0" prefWidth="242.0" />
+
+                    <Label layoutX="20.0" layoutY="118.0" text="Cal:" textFill="WHITE" />
+                    <TextField fx:id="foodCalField" layoutX="52.0" layoutY="114.0" prefWidth="50" />
+
+                    <Label layoutX="110.0" layoutY="118.0" prefHeight="17.0" prefWidth="45.0" text="Protein" textFill="WHITE" />
+                    <TextField fx:id="foodProField" layoutX="155.0" layoutY="114.0" prefWidth="50" />
+
+                    <Label layoutX="218.0" layoutY="118.0" text="Carbs:" textFill="WHITE" />
+                    <TextField fx:id="foodCarbField" layoutX="259.0" layoutY="114.0" prefWidth="50" />
+
+                    <Label layoutX="326.0" layoutY="118.0" text="Fats:" textFill="WHITE" />
+                    <TextField fx:id="foodFatField" layoutX="365.0" layoutY="114.0" prefWidth="50" />
+
+                    <Label layoutX="428.0" layoutY="118.0" text="Serving (g):" textFill="WHITE" />
+                    <TextField fx:id="foodServingField" layoutX="499.0" layoutY="114.0" prefWidth="50" />
+
+                    <Button fx:id="addFoodButton" layoutX="580.0" layoutY="113.0" prefHeight="28" prefWidth="120" style="-fx-background-color: #1435d1; -fx-text-fill: white;" text="Add Food" />
+
+                    <TableView fx:id="foodTable" layoutX="20" layoutY="163.0" prefHeight="437.0" prefWidth="864.0" style="-fx-background-color: #1a1a1a; -fx-text-fill: white;">
+                        <columns>
+                            <TableColumn fx:id="foodNutritionId" prefWidth="73.0" text="Nutrition ID" />
+                            <TableColumn fx:id="foodNutriDesc" prefWidth="156.0" text="Description" />
+                            <TableColumn fx:id="foodNutriDate" prefWidth="117.0" text="Date" />
+                            <TableColumn fx:id="foodRecipe" prefWidth="168.0" text="Recipe" />
+                            <TableColumn fx:id="foodCal" prefWidth="69.0" text="Calories" />
+                            <TableColumn fx:id="foodPro" prefWidth="73.0" text="Protein" />
+                            <TableColumn fx:id="foodCarb" prefWidth="62.0" text="Carbs" />
+                            <TableColumn fx:id="foodFat" prefWidth="43.0" text="Fats" />
+                            <TableColumn fx:id="foodServing" prefWidth="102.0" text="Serving Size (g)" />
+                        </columns>
+                    </TableView>
+
+                    <Label layoutX="366.0" layoutY="9.0" style="-fx-font-size: 32px; -fx-font-weight: bold;" text="Food Log" textFill="white" />
+
+                    <Button fx:id="foodBackButton" layoutX="20" layoutY="20" style="-fx-background-color: #1435d1; -fx-text-fill: white; -fx-background-radius: 8;" text="Back" />
+
+                    <ComboBox fx:id="filterFoodComboBox" layoutX="700.0" layoutY="73.0" prefWidth="150" promptText="Filter By:" style="-fx-background-color: #1a1a1a; -fx-text-fill: white;" />
+
+                </AnchorPane>
+            </content>
+
+        </Tab>
+
+    </tabs>
+
+</TabPane>

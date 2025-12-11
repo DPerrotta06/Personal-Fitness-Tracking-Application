@@ -2,7 +2,7 @@ package org.example.personalfitnesstracker.Models;
 
 import javafx.beans.property.*;
 
-public abstract class Goal {
+public class Goal {
 
     protected final IntegerProperty goalId;
     protected final StringProperty goalName;
