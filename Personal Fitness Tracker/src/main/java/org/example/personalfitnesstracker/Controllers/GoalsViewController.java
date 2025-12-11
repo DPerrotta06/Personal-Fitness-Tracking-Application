@@ -162,7 +162,7 @@ public class GoalsViewController extends BaseController {
             return;
         }
 
-        Goal newGoal;
+        Goal newGoal = null;
 
         try {
             int userId = currentUser.userIdProperty().get();
@@ -214,6 +214,12 @@ public class GoalsViewController extends BaseController {
             return;
         }
 
+        // If for some reason newGoal is still null (shouldn’t happen)
+        if (newGoal == null) {
+            showMessageWindow("Error", "Failed to create goal.", AlertType.ERROR, OK);
+            return;
+        }
+
         // save to DB
         DatabaseManager.addNewGoalToDb(newGoal);
 
@@ -229,6 +235,7 @@ public class GoalsViewController extends BaseController {
 
         showMessageWindow("Success", "Goal added.", AlertType.INFORMATION, OK);
     }
+
 
     private void handleMarkCompleted() {
 
