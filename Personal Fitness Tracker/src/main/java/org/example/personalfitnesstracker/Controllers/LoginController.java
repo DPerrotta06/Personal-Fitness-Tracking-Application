@@ -1,4 +1,5 @@
 package org.example.personalfitnesstracker.Controllers;
+import org.example.personalfitnesstracker.Threads.LoginThread;
 
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -66,37 +67,52 @@ public final class LoginController extends BaseController {
                 return;
             }
 
-            if (DatabaseManager.userExists(email, password.getBytes())) {
-                showMessageWindow("Login Status", "Login Successful!", AlertType.INFORMATION, ButtonType.OK);
-                User user = getUserDataByEmail(email, password.getBytes());
+            LoginThread loginThread =
+                    new LoginThread("Checking login credentials...", email, pwBytes);
 
-                if (user != null) {
+            loginThread.thread.start();
 
-                    try {
-                        FXMLLoader loader = new FXMLLoader(
-                                getClass().getResource("/org/example/personalfitnesstracker/Views/MainPageView.fxml")
-                        );
-                        Parent root = loader.load();
+            try {
+                loginThread.thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
-                        MainPageController controller = loader.getController();
-                        controller.setUser(user);
+            User user = loginThread.user;
 
-                        Stage stage = new Stage();
-                        stage.setScene(new Scene(root));
-                        stage.setTitle("Fitness Tracker - Main Page");
-                        stage.show();
+            if (user != null) {
+                showMessageWindow("Login Status", "Login Successful!",
+                        AlertType.INFORMATION, ButtonType.OK);
 
-                        loginView.close();
+                try {
+                    FXMLLoader loader = new FXMLLoader(
+                            getClass().getResource(
+                                    "/org/example/personalfitnesstracker/Views/MainPageView.fxml")
+                    );
+                    Parent root = loader.load();
 
-                    } catch (IOException e) {
-                        log("Unexpected File Exception." + e, Level.SEVERE); //logger
-                    }
+                    MainPageController controller = loader.getController();
+                    controller.setUser(user);
+
+                    Stage stage = new Stage();
+                    stage.setScene(new Scene(root));
+                    stage.setTitle("Fitness Tracker - Main Page");
+                    stage.show();
+
+                    loginView.close();
+
+                } catch (IOException e) {
+                    log("Unexpected File Exception." + e, Level.SEVERE);
                 }
+
             } else {
-                showMessageWindow("ERROR", "User " + email + " does not exist or incorrect password.", AlertType.ERROR, ButtonType.OK);
-                log("User " + email + " does not exist or incorrect password.", Level.WARNING);
+                showMessageWindow("ERROR",
+                        "User " + email + " does not exist or incorrect password.",
+                        AlertType.ERROR,
+                        ButtonType.OK);
             }
         });
+
 
         loginView.getCreateAccountLink().setOnAction(e -> {
             createAccountView = new CreateAccountView();

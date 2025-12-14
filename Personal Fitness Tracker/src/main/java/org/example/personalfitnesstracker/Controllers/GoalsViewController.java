@@ -14,6 +14,8 @@ import org.example.personalfitnesstracker.Models.CuttingGoal;
 import org.example.personalfitnesstracker.Models.Goal;
 import org.example.personalfitnesstracker.Models.MuscularGoal;
 import org.example.personalfitnesstracker.Models.User;
+import org.example.personalfitnesstracker.Threads.AddGoalThread;
+import org.example.personalfitnesstracker.Threads.UpdateGoalThread;
 
 import static javafx.scene.control.Alert.AlertType;
 import static javafx.scene.control.ButtonType.OK;
@@ -214,19 +216,24 @@ public class GoalsViewController extends BaseController {
             return;
         }
 
-        // If for some reason newGoal is still null (shouldn’t happen)
         if (newGoal == null) {
             showMessageWindow("Error", "Failed to create goal.", AlertType.ERROR, OK);
             return;
         }
 
-        // save to DB
-        DatabaseManager.addNewGoalToDb(newGoal);
+        AddGoalThread addGoalThread =
+                new AddGoalThread("Adding goal to database...", newGoal);
 
-        // reload table
+        addGoalThread.thread.start();
+
+        try {
+            addGoalThread.thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         refreshGoals();
 
-        // clear inputs
         goalNameField.clear();
         goalDescriptionArea.clear();
         extraField1.clear();
@@ -235,6 +242,7 @@ public class GoalsViewController extends BaseController {
 
         showMessageWindow("Success", "Goal added.", AlertType.INFORMATION, OK);
     }
+
 
 
     private void handleMarkCompleted() {
@@ -248,10 +256,21 @@ public class GoalsViewController extends BaseController {
         }
 
         selected.isCompletedProperty().set(true);
-        DatabaseManager.updateGoal(selected);
+
+        UpdateGoalThread updateGoalThread =
+                new UpdateGoalThread("Updating goal completion...", selected);
+
+        updateGoalThread.thread.start();
+
+        try {
+            updateGoalThread.thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         goalsTable.refresh();
     }
+
     @FXML
     private void onCloseClicked() {
         // just close the window

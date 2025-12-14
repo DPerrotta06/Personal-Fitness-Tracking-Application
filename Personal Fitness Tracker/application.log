@@ -64,3 +64,5 @@ Dec 11, 2025 6:34:35 AM org.example.personalfitnesstracker.Controllers.BaseContr
 INFO: User  does not exist or incorrect password.
 Dec 13, 2025 9:33:29 PM org.example.personalfitnesstracker.Controllers.BaseController log
 INFO: User buhaan123@example.com does not exist or incorrect password.
+Dec 14, 2025 2:35:34 AM org.example.personalfitnesstracker.Controllers.BaseController log
+INFO: User buhaan123@example.co does not exist or incorrect password.

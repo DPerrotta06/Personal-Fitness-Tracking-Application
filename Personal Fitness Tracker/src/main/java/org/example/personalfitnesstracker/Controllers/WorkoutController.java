@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.example.personalfitnesstracker.DatabaseManagement.DatabaseManager;
 import org.example.personalfitnesstracker.Models.*;
+import org.example.personalfitnesstracker.Threads.AddWorkoutThread;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -162,7 +163,17 @@ public class WorkoutController extends BaseController {
                     cwHRField.getText().trim()
             );
 
-            DatabaseManager.addNewWorkoutToDb(cw);
+            AddWorkoutThread addWorkoutThread =
+                    new AddWorkoutThread("Adding cardio workout...", cw);
+
+            addWorkoutThread.thread.start();
+
+            try {
+                addWorkoutThread.thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             refreshAll();
             clearCardioForm();
 
@@ -170,6 +181,7 @@ public class WorkoutController extends BaseController {
             showMessageWindow("Invalid input", "Check cardio workout fields.", AlertType.ERROR, OK);
         }
     }
+
 
     private void addMuscular() {
         try {
@@ -186,7 +198,17 @@ public class WorkoutController extends BaseController {
                     Double.parseDouble(mwWeightField.getText().trim())
             );
 
-            DatabaseManager.addNewWorkoutToDb(mw);
+            AddWorkoutThread addWorkoutThread =
+                    new AddWorkoutThread("Adding muscular workout...", mw);
+
+            addWorkoutThread.thread.start();
+
+            try {
+                addWorkoutThread.thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             refreshAll();
             clearMuscularForm();
 
@@ -194,6 +216,7 @@ public class WorkoutController extends BaseController {
             showMessageWindow("Invalid input", "Check muscular workout fields.", AlertType.ERROR, OK);
         }
     }
+
 
     private void clearCardioForm() {
         cwNameField.clear();

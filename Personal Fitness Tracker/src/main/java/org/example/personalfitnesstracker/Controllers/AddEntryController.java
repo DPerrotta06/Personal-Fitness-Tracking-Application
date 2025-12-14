@@ -13,6 +13,7 @@ import org.example.personalfitnesstracker.Models.User;
 import java.time.LocalDateTime;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
+import org.example.personalfitnesstracker.Threads.AddEntryThread;
 
 public class AddEntryController extends BaseController {
 
@@ -39,7 +40,6 @@ public class AddEntryController extends BaseController {
     @FXML
     public void initialize() {
 
-        // Pre-load valid entry types
         entryTypeCombo.getItems().addAll(
                 "Calories",
                 "Water",
@@ -80,7 +80,16 @@ public class AddEntryController extends BaseController {
                 LocalDateTime.now()
         );
 
-        DatabaseManager.addEntry(entry);
+        AddEntryThread addEntryThread =
+                new AddEntryThread("Saving entry to database...", entry);
+
+        addEntryThread.thread.start();
+
+        try {
+            addEntryThread.thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         showMessageWindow("Success", "Entry saved!", AlertType.INFORMATION, ButtonType.OK);
 
@@ -88,7 +97,8 @@ public class AddEntryController extends BaseController {
             onEntrySaved.run();
         }
 
-        // Close window
         saveButton.getScene().getWindow().hide();
     }
+
 }
+

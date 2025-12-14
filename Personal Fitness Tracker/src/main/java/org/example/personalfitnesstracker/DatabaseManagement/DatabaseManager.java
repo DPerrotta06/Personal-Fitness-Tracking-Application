@@ -299,7 +299,12 @@ public class DatabaseManager {
      * @throws SQLException
      */
     private static void addBulkingGoal(BulkingGoal bg, int id, Connection conn) throws SQLException {
-        String query = "INSERT INTO BulkingGoal (GoalID, TargetWeightGain, TargetDailyCaloricDeficit) VALUES (?, ?, ?)";
+
+        String query = """
+        INSERT INTO BulkingGoal 
+        (GoalID, TargetWeightGain, TargetDailyCaloricIntake)
+        VALUES (?, ?, ?)
+        """;
         try (PreparedStatement prepStat = conn.prepareStatement(query)) {
             prepStat.setInt(1, id);
             prepStat.setDouble(2, bg.targetWeightGainProperty().get());
@@ -307,6 +312,7 @@ public class DatabaseManager {
             prepStat.executeUpdate();
         }
     }
+
 
     /**
      *
@@ -316,7 +322,12 @@ public class DatabaseManager {
      * @throws SQLException
      */
     private static void addCuttingGoal(CuttingGoal cg, int id, Connection conn) throws SQLException {
-        String query = "INSERT INTO CuttingGoal (GoalID, TargetWeightLoss, TargetDailyCaloricDeficit) VALUES (?, ?, ?)";
+
+        String query = """
+        INSERT INTO CuttingGoal 
+        (GoalID, TargetWeightLoss, TargetDailyCaloricIntake)
+        VALUES (?, ?, ?)
+        """;
         try (PreparedStatement prepStat = conn.prepareStatement(query)) {
             prepStat.setInt(1, id);
             prepStat.setDouble(2, cg.targetWeightLossProperty().get());
@@ -324,6 +335,7 @@ public class DatabaseManager {
             prepStat.executeUpdate();
         }
     }
+
 
     /**
      *

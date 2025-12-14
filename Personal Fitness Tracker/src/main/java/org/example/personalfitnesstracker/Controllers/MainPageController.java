@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
+import org.example.personalfitnesstracker.Threads.MainPageLoadThread;
 import org.example.personalfitnesstracker.Views.LoginView;
 
 import static javafx.scene.control.ButtonType.OK;
@@ -82,10 +83,37 @@ public class MainPageController extends BaseController {
     // LOAD EVERYTHING
     // -------------------------------------------------------------------------
     private void loadAllSections() {
-        loadDailySummary();
+        if (loggedUser == null) return;
+
+        int userId = loggedUser.userIdProperty().get();
+
+        MainPageLoadThread loadThread =
+                new MainPageLoadThread("Loading main page data...", userId);
+
+        loadThread.thread.start();
+
+        try {
+            loadThread.thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+        dailyCaloriesLabel.setText(
+                String.format("%.0f kcal", loadThread.calories));
+
+        dailyWaterLabel.setText(
+                String.format("%.2f L", loadThread.water));
+
+        dailySleepLabel.setText(
+                String.format("%.0f h %.0f min",
+                        loadThread.sleep[0], loadThread.sleep[1]));
+
         loadBMI();
-        loadWeeklyChart();
+
+        loadWeeklyChart(loadThread.weeklyCalories);
     }
+
 
     // -------------------------------------------------------------------------
     // DAILY SUMMARY (calories, water, sleep)
@@ -142,13 +170,7 @@ public class MainPageController extends BaseController {
     // -------------------------------------------------------------------------
     // WEEKLY CHART
     // -------------------------------------------------------------------------
-    private void loadWeeklyChart() {
-        if (loggedUser == null) {
-            return;
-        }
-
-        //Map<LocalDate, Double> data = DatabaseManager.getWeeklyCalories(currentUser.userIdProperty().get());
-        Map<LocalDate, Double> data = DatabaseManager.getWeeklyCalories(loggedUser.userIdProperty().get());
+    private void loadWeeklyChart(Map<LocalDate, Double> data) {
 
         weeklyChartContainer.getChildren().clear();
 
@@ -176,6 +198,7 @@ public class MainPageController extends BaseController {
         chart.getData().add(series);
         weeklyChartContainer.getChildren().add(chart);
     }
+
 
     // -------------------------------------------------------------------------
     // BUTTON HANDLERS

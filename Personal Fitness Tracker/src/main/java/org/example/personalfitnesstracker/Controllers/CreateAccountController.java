@@ -13,6 +13,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.example.personalfitnesstracker.DatabaseManagement.DatabaseManager;
 import org.example.personalfitnesstracker.Models.User;
+import org.example.personalfitnesstracker.Threads.CreateUserThread;
 import org.example.personalfitnesstracker.Views.CreateAccountView;
 
 public final class CreateAccountController extends BaseController {
@@ -83,19 +84,48 @@ public final class CreateAccountController extends BaseController {
                 double weight = Double.parseDouble(weightText);
                 double height = Double.parseDouble(heightText);
                 LocalDate dob = LocalDate.parse(dobText);
-                User newUser = createUser(0, password, email, weight, height, dob, username);
+
+                User user = new User(0, password, email, weight, height, dob, username);
+                CreateUserThread createThread =
+                        new CreateUserThread("Creating new user...", user);
+
+                createThread.thread.start();
+
+                try {
+                    createThread.thread.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                if (createThread.userAlreadyExists) {
+                    showMessageWindow(
+                            "Cannot create a duplicate User",
+                            "This user already exists! Please enter a different Username and Password.",
+                            AlertType.WARNING,
+                            ButtonType.OK
+                    );
+                    return;
+                }
+
+                User newUser = createThread.createdUser;
 
                 if (newUser != null) {
-                    // Load the MainPage FXML
                     try {
                         FXMLLoader loader = new FXMLLoader(
-                                getClass().getResource("/org/example/personalfitnesstracker/Views/MainPageView.fxml")
+                                getClass().getResource(
+                                        "/org/example/personalfitnesstracker/Views/MainPageView.fxml")
                         );
                         Parent root = loader.load();
 
                         MainPageController controller = loader.getController();
                         controller.setUser(newUser);
-                        showMessageWindow("INFO", "User created successfully", AlertType.INFORMATION, ButtonType.OK);
+
+                        showMessageWindow(
+                                "INFO",
+                                "User created successfully",
+                                AlertType.INFORMATION,
+                                ButtonType.OK
+                        );
 
                         Stage stage = new Stage();
                         stage.setScene(new Scene(root));
@@ -108,6 +138,7 @@ public final class CreateAccountController extends BaseController {
                         log("File error." + e, Level.SEVERE);
                     }
                 }
+
             } catch (DateTimeException e) {
                 log("Date error." + e, Level.SEVERE);
                 showMessageWindow("Invalid date format!", "Date must in the format of YYYY-MM-DD", AlertType.ERROR, ButtonType.OK);
