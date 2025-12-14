@@ -30,7 +30,7 @@ import org.example.personalfitnesstracker.Models.*;
  *
  * @author danie
  */
-public class DatabaseManager { //might be immutable?
+public class DatabaseManager {
 
     private static final DBLoader loadDatabase = DBLoader.getInstance(); //reads all database credentials once
     private static final String URL = loadDatabase.getDbURL();
@@ -330,27 +330,34 @@ public class DatabaseManager { //might be immutable?
      * @param workout
      */
     public static void addNewWorkoutToDb(Workout workout) {
-        String query = "INSERT INTO Workouts (WorkoutName, WorkoutDescription, WorkoutDuration, CaloriesBurned, UserID, DateStamp) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            prepStat.setString(1, workout.workoutNameProperty().get());
-            prepStat.setString(2, workout.workoutDescriptionProperty().get());
-            prepStat.setDouble(3, workout.workoutDurationProperty().get());
-            prepStat.setInt(4, workout.caloriesBurnedProperty().get());
-            prepStat.setInt(5, workout.userIdProperty().get());
-            prepStat.setTimestamp(6, Timestamp.valueOf(workout.dateStampProperty()));
-            ResultSet parentRef = prepStat.getGeneratedKeys();
-            if (parentRef.next()) {
-                int workoutId = parentRef.getInt(1);
-                if (workout instanceof MuscularWorkout muscularWorkout) {
-                    addMuscularWorkout(muscularWorkout, workoutId, conn);
-                } else if (workout instanceof CardioWorkout cardioWorkout) {
-                    addCardioWorkout(cardioWorkout, workoutId, conn);
+        String sql = """
+        INSERT INTO Workouts (WorkoutName, WorkoutDescription, WorkoutDuration, CaloriesBurned, UserID, DateStamp)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """;
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW);
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, workout.workoutNameProperty().get());
+            ps.setString(2, workout.workoutDescriptionProperty().get());
+            ps.setDouble(3, workout.workoutDurationProperty().get());
+            ps.setInt(4, workout.caloriesBurnedProperty().get());
+            ps.setInt(5, workout.userIdProperty().get());
+            ps.setTimestamp(6, Timestamp.valueOf(workout.dateStampProperty()));
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) {
+                    int workoutId = keys.getInt(1);
+                    if (workout instanceof MuscularWorkout mw) {
+                        addMuscularWorkout(mw, workoutId, conn);
+                    } else if (workout instanceof CardioWorkout cw) {
+                        addCardioWorkout(cw, workoutId, conn);
+                    }
                 }
             }
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
+            logger.log(Level.SEVERE, "Error connecting to database.", e);
         }
     }
+
 
     /**
      *
@@ -979,59 +986,60 @@ public class DatabaseManager { //might be immutable?
     }
 
 
-    /**
-     *
-     * @param workout
-     * @return
-     */
     public static void updateWorkout(Workout workout) {
-        String query = "UPDATE Workouts SET WorkoutName = ?, WorkoutDescription = ?, WorkoutDuration = ?, CaloriesBurned = ?, DateStamp = ? WHERE UserID = ?";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PW); PreparedStatement prepStat = conn.prepareStatement(query)) {
-            prepStat.setString(1, workout.workoutNameProperty().get());
-            prepStat.setString(2, workout.workoutDescriptionProperty().get());
-            prepStat.setInt(3, workout.caloriesBurnedProperty().get());
-            prepStat.setTimestamp(4, Timestamp.valueOf(workout.dateStampProperty()));
-            prepStat.executeUpdate();
+        String sql = """
+        UPDATE Workouts
+        SET WorkoutName = ?, WorkoutDescription = ?, WorkoutDuration = ?, CaloriesBurned = ?, DateStamp = ?
+        WHERE WorkoutID = ?
+    """;
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, workout.workoutNameProperty().get());
+            ps.setString(2, workout.workoutDescriptionProperty().get());
+            ps.setDouble(3, workout.workoutDurationProperty().get());
+            ps.setInt(4, workout.caloriesBurnedProperty().get());
+            ps.setTimestamp(5, Timestamp.valueOf(workout.dateStampProperty()));
+            ps.setInt(6, workout.workoutIdProperty().get());
+            ps.executeUpdate();
             if (workout instanceof MuscularWorkout mw) {
                 updateMuscularWorkout(mw, conn);
             } else if (workout instanceof CardioWorkout cw) {
                 updateCardioWorkout(cw, conn);
             }
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error connecting to database.", e); //logger
+            logger.log(Level.SEVERE, "Error connecting to database.", e);
         }
     }
 
-    /**
-     *
-     * @param mw
-     * @param conn
-     * @throws SQLException
-     */
     private static void updateMuscularWorkout(MuscularWorkout mw, Connection conn) throws SQLException {
-        String query = "UPDATE MuscularWorkout SET TotalSets = ?, TotalReps = ?, TotalWeight = ? WHERE WorkoutID = ?";
-        try (PreparedStatement prepStat = conn.prepareStatement(query)) {
-            prepStat.setInt(1, mw.totalSetsProperty().get());
-            prepStat.setInt(2, mw.totalRepsProperty().get());
-            prepStat.setDouble(3, mw.totalWeightProperty().get());
-            prepStat.executeUpdate();
+        String sql = """
+        UPDATE MuscularWorkout
+        SET TotalSets = ?, TotalReps = ?, TotalWeight = ?
+        WHERE WorkoutID = ?
+    """;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, mw.totalSetsProperty().get());
+            ps.setInt(2, mw.totalRepsProperty().get());
+            ps.setDouble(3, mw.totalWeightProperty().get());
+            ps.setInt(4, mw.workoutIdProperty().get());
+            ps.executeUpdate();
         }
     }
 
-    /**
-     *
-     * @param cw
-     * @param conn
-     * @throws SQLException
-     */
     private static void updateCardioWorkout(CardioWorkout cw, Connection conn) throws SQLException {
-        String query = "UPDATE CardioWorkout SET TotalDistance = ?, HeartRateZone = ? WHERE WorkoutID = ?";
-        try (PreparedStatement prepStat = conn.prepareStatement(query)) {
-            prepStat.setDouble(1, cw.totalDistanceProperty().get());
-            prepStat.setString(2, cw.heartRateZoneProperty().get());
-            prepStat.executeUpdate();
+        String sql = """
+        UPDATE CardioWorkout
+        SET TotalDistance = ?, HeartRateZone = ?
+        WHERE WorkoutID = ?
+    """;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setDouble(1, cw.totalDistanceProperty().get());
+            ps.setString(2, cw.heartRateZoneProperty().get());
+            ps.setInt(3, cw.workoutIdProperty().get());
+            ps.executeUpdate();
         }
     }
+
 
     /**
      *
@@ -1168,6 +1176,33 @@ public class DatabaseManager { //might be immutable?
         }
     }
 
+    public static void deleteWorkout(int workoutId, int userId) {
+
+        String delMuscular = "DELETE FROM MuscularWorkout WHERE WorkoutID = ?";
+        String delCardio   = "DELETE FROM CardioWorkout WHERE WorkoutID = ?";
+        String delParent   = "DELETE FROM Workouts WHERE WorkoutID = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PW)) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement ps1 = conn.prepareStatement(delMuscular);
+                 PreparedStatement ps2 = conn.prepareStatement(delCardio);
+                 PreparedStatement ps3 = conn.prepareStatement(delParent)) {
+                ps1.setInt(1, workoutId);
+                ps1.executeUpdate();
+                ps2.setInt(1, workoutId);
+                ps2.executeUpdate();
+                ps3.setInt(1, workoutId);
+                ps3.executeUpdate();
+                conn.commit();
+            } catch (SQLException ex) {
+                conn.rollback();
+                throw ex;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error deleting workout.", e);
+        }
+    }
 
     /**
      *

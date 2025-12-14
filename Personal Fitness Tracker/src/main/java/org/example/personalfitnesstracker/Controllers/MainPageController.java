@@ -52,6 +52,8 @@ public class MainPageController extends BaseController {
     private Button logoutButton;
     @FXML
     private Button nutritionButton;
+    @FXML
+    private Button addWorkoutButton;
 
     // -------------------------------------------------------------------------
     // INITIALIZE
@@ -249,6 +251,23 @@ public class MainPageController extends BaseController {
 
                 Stage stage = new Stage();
                 stage.setTitle("Nutrition Log");
+                stage.setScene(new Scene(root));
+                stage.show();
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+        addWorkoutButton.setOnAction(e -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/personalfitnesstracker/Views/Workout.fxml"));
+                Parent root = loader.load();
+
+                WorkoutController controller = loader.getController();
+                controller.setUser(loggedUser);
+
+                Stage stage = new Stage();
+                stage.setTitle("Workout Log");
                 stage.setScene(new Scene(root));
                 stage.show();
 

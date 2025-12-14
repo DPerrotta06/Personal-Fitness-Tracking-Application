@@ -30,7 +30,7 @@ public class NutritionController extends BaseController {
     @FXML private Button waterBackButton;
     @FXML private ComboBox<String> waterComboBox;
 
-    // NEW WATER INPUT FIELDS
+    // WATER INPUT FIELDS
     @FXML private TextField waterDescField;
     @FXML private TextField waterAmountField;
     @FXML private Button addWaterButton;
@@ -52,7 +52,7 @@ public class NutritionController extends BaseController {
     @FXML private Button foodBackButton;
     @FXML private ComboBox<String> filterFoodComboBox;
 
-    // NEW FOOD INPUT FIELDS
+    // FOOD INPUT FIELDS
     @FXML private TextField foodDescField;
     @FXML private TextField foodRecipeField;
     @FXML private TextField foodCalField;
@@ -191,7 +191,7 @@ public class NutritionController extends BaseController {
 
 
     // ========================================================================
-    // ADD BUTTONS (NEW UI)
+    // ADD BUTTONS
     // ========================================================================
     private void setupAddButtons() {
         addWaterButton.setOnAction(e -> handleAddWater());

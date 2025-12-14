@@ -1,236 +1,241 @@
 package org.example.personalfitnesstracker.Controllers;
 
-import java.time.LocalDate;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import org.example.personalfitnesstracker.Factories.CardioFactory;
-import org.example.personalfitnesstracker.Factories.IWorkoutFactory;
-import org.example.personalfitnesstracker.Factories.MuscularFactory;
-import org.example.personalfitnesstracker.Factories.WorkoutAttributeData;
-import org.example.personalfitnesstracker.Models.Workout;
-import java.time.LocalDateTime;
-import java.util.ArrayDeque;
-import java.util.List;
-import java.util.stream.Collectors;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.*;
+import javafx.stage.Stage;
 import org.example.personalfitnesstracker.DatabaseManagement.DatabaseManager;
-import org.example.personalfitnesstracker.Models.CardioWorkout;
-import org.example.personalfitnesstracker.Models.MuscularWorkout;
-import org.example.personalfitnesstracker.Models.User;
+import org.example.personalfitnesstracker.Models.*;
 
-/**
- * Controller responsible for creating and managing Workout sessions
- * (CardioWorkout and MuscularWorkout).
- */
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+import static javafx.scene.control.Alert.AlertType;
+import static javafx.scene.control.ButtonType.OK;
+
 public class WorkoutController extends BaseController {
 
-    @FXML
-    private Button cwBackButton, mwBackButton;
-    @FXML
-    private ComboBox cwFilter, mwFilter;
-    @FXML
-    private TableView<Workout> cardioTable, muscularTable;
-    @FXML
-    private TableColumn<Workout, String> cwName, cwDesc, cwHR, mwName;
-    @FXML
-    private TableColumn<Workout, Double> mwDuration, mwWeight, cwDuration, cwDistance;
-    @FXML
-    private TableColumn<Workout, LocalDate> mwDate, cwDate;
-    @FXML
-    private TableColumn<Workout, Integer> mwID, cwID, mwSets, mwReps, cwCalBurned, mwCalBurned;
-    
+    // ---------------- CARDIO ----------------
+    @FXML private Button cwBackButton, cwAddButton;
+    @FXML private ComboBox<String> cwFilter;
+    @FXML private TableView<CardioWorkout> cardioTable;
 
-    private final IWorkoutFactory cardioFactory;
-    private final IWorkoutFactory muscularFactory;
-    private final ArrayDeque<Workout> recentWorkouts = new ArrayDeque<>();
-    private final ObservableList<Workout> workouts;
+    @FXML private TableColumn<CardioWorkout, Integer> cwID, cwCalBurned;
+    @FXML private TableColumn<CardioWorkout, String> cwName, cwDesc, cwHR, cwDate;
+    @FXML private TableColumn<CardioWorkout, Double> cwDuration, cwDistance;
 
-    /**
-     * 
-     * @param loggedUser 
-     */
-    public WorkoutController(User loggedUser) {
-        super(loggedUser);
-        this.cardioFactory = new CardioFactory();
-        this.muscularFactory = new MuscularFactory();
-        this.workouts = FXCollections.observableArrayList();
-    }
-    
+    @FXML private TextField cwNameField, cwDescField, cwDurationField,
+            cwCaloriesField, cwDistanceField, cwHRField;
+
+    // ---------------- MUSCULAR ----------------
+    @FXML private Button mwBackButton, mwAddButton;
+    @FXML private ComboBox<String> mwFilter;
+    @FXML private TableView<MuscularWorkout> muscularTable;
+
+    @FXML private TableColumn<MuscularWorkout, Integer> mwID, mwCalBurned, mwSets, mwReps;
+    @FXML private TableColumn<MuscularWorkout, String> mwName, mwDesc, mwDate;
+    @FXML private TableColumn<MuscularWorkout, Double> mwDuration, mwWeight;
+
+    @FXML private TextField mwNameField, mwDescField, mwDurationField,
+            mwCaloriesField, mwSetsField, mwRepsField, mwWeightField;
+
+    private User currentUser;
+
+    private final ObservableList<CardioWorkout> allCardio = FXCollections.observableArrayList();
+    private final ObservableList<MuscularWorkout> allMuscular = FXCollections.observableArrayList();
+
+    private final DateTimeFormatter dateFmt =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
     @FXML
-    public void initView(){
-        
-    }
-    
-    private void muscularTableLoad(){
-        mwID.setCellValueFactory(new PropertyValueFactory<>("workoutId"));
-        mwName.setCellValueFactory(new PropertyValueFactory<>("workoutName"));
-        
+    private void initialize() {
+        setupTables();
+        setupFilters();
+        setupButtons();
+        setupContextMenus();
     }
 
-
-    /**
-     * 
-     * @return 
-     */
-    public ObservableList<Workout> getWorkouts() {
-        return workouts;
+    public void setUser(User user) {
+        this.currentUser = user;
+        refreshAll();
     }
-    
-    
-    // CARDIO WORKOUT
-    public Workout addCardioWorkout(int workoutId,
-            String workoutName,
-            String workoutDescription,
-            double duration,
-            int caloriesBurned,
-            LocalDateTime dateStamp,
-            int userId,
-            double totalDistance,
-            String heartRateZone) {
 
-        if (!isPositive(duration)) {
-            return null;
+    private void setupTables() {
+
+        cwID.setCellValueFactory(d -> d.getValue().workoutIdProperty().asObject());
+        cwName.setCellValueFactory(d -> d.getValue().workoutNameProperty());
+        cwDesc.setCellValueFactory(d -> d.getValue().workoutDescriptionProperty());
+        cwDuration.setCellValueFactory(d -> d.getValue().workoutDurationProperty().asObject());
+        cwCalBurned.setCellValueFactory(d -> d.getValue().caloriesBurnedProperty().asObject());
+        cwDistance.setCellValueFactory(d -> d.getValue().totalDistanceProperty().asObject());
+        cwHR.setCellValueFactory(d -> d.getValue().heartRateZoneProperty());
+        cwDate.setCellValueFactory(d ->
+                Bindings.createStringBinding(() ->
+                        d.getValue().dateStampProperty().format(dateFmt)));
+
+        cardioTable.setItems(allCardio);
+
+        mwID.setCellValueFactory(d -> d.getValue().workoutIdProperty().asObject());
+        mwName.setCellValueFactory(d -> d.getValue().workoutNameProperty());
+        mwDesc.setCellValueFactory(d -> d.getValue().workoutDescriptionProperty());
+        mwDuration.setCellValueFactory(d -> d.getValue().workoutDurationProperty().asObject());
+        mwCalBurned.setCellValueFactory(d -> d.getValue().caloriesBurnedProperty().asObject());
+        mwSets.setCellValueFactory(d -> d.getValue().totalSetsProperty().asObject());
+        mwReps.setCellValueFactory(d -> d.getValue().totalRepsProperty().asObject());
+        mwWeight.setCellValueFactory(d -> d.getValue().totalWeightProperty().asObject());
+        mwDate.setCellValueFactory(d ->
+                Bindings.createStringBinding(() ->
+                        d.getValue().dateStampProperty().format(dateFmt)));
+
+        muscularTable.setItems(allMuscular);
+    }
+
+    private void setupFilters() {
+        cwFilter.getItems().setAll("All", "Today", "Last 7 days");
+        mwFilter.getItems().setAll("All", "Today", "Last 7 days");
+        cwFilter.setValue("All");
+        mwFilter.setValue("All");
+
+        cwFilter.setOnAction(e -> applyFilter(cwFilter, allCardio, cardioTable));
+        mwFilter.setOnAction(e -> applyFilter(mwFilter, allMuscular, muscularTable));
+    }
+
+    private void setupButtons() {
+        cwBackButton.setOnAction(e -> close());
+        mwBackButton.setOnAction(e -> close());
+        cwAddButton.setOnAction(e -> addCardio());
+        mwAddButton.setOnAction(e -> addMuscular());
+    }
+
+    private void close() {
+        ((Stage) cwBackButton.getScene().getWindow()).close();
+    }
+
+    private void refreshAll() {
+        if (currentUser == null) return;
+
+        allCardio.clear();
+        allMuscular.clear();
+
+        for (Workout w : DatabaseManager.displayWorkoutLogs(currentUser.userIdProperty().get())) {
+            if (w instanceof CardioWorkout cw) allCardio.add(cw);
+            if (w instanceof MuscularWorkout mw) allMuscular.add(mw);
         }
 
-        WorkoutAttributeData attr = new WorkoutAttributeData(
-                workoutId,
-                workoutName,
-                workoutDescription,
-                duration,
-                caloriesBurned,
-                dateStamp,
-                userId,
-                null, // totalSets
-                null, // totalReps
-                null, // totalWeight
-                totalDistance,
-                heartRateZone
-        );
-
-        Workout workout = cardioFactory.addNewWorkoutSession(attr);
-        workouts.add(workout);
-        return workout;
+        applyFilter(cwFilter, allCardio, cardioTable);
+        applyFilter(mwFilter, allMuscular, muscularTable);
     }
 
-    // MUSCULAR WORKOUT
-    public Workout addMuscularWorkout(int workoutId,
-            String workoutName,
-            String workoutDescription,
-            double duration,
-            int caloriesBurned,
-            LocalDateTime dateStamp,
-            int userId,
-            int totalSets,
-            int totalReps,
-            double totalWeight) {
+    private <T extends Workout> void applyFilter(
+            ComboBox<String> filter,
+            ObservableList<T> source,
+            TableView<T> table) {
 
-        if (!isPositive(duration)) {
-            return null;
+        FilteredList<T> filtered = new FilteredList<>(source, w -> true);
+        LocalDate today = LocalDate.now();
+
+        if ("Today".equals(filter.getValue())) {
+            filtered.setPredicate(w -> w.dateStampProperty().toLocalDate().isEqual(today));
+        } else if ("Last 7 days".equals(filter.getValue())) {
+            LocalDate weekAgo = today.minusDays(7);
+            filtered.setPredicate(w -> !w.dateStampProperty().toLocalDate().isBefore(weekAgo));
         }
 
-        WorkoutAttributeData attr = new WorkoutAttributeData(
-                workoutId,
-                workoutName,
-                workoutDescription,
-                duration,
-                caloriesBurned,
-                dateStamp,
-                userId,
-                totalSets,
-                totalReps,
-                totalWeight,
-                null, // totalDistance
-                null // heartRateZone
-        );
-
-        Workout workout = muscularFactory.addNewWorkoutSession(attr);
-        workouts.add(workout);
-        return workout;
+        table.setItems(filtered);
     }
 
-    /**
-     * Using an arraydequeue to get the recent workouts done by the user to act
-     * as a sort of history
-     *
-     * @return
-     */
-    public ObservableList<Workout> getRecentWorkouts() {
-        return FXCollections.observableArrayList(recentWorkouts);
-    }
+    private void addCardio() {
+        try {
+            CardioWorkout cw = new CardioWorkout(
+                    0,
+                    cwNameField.getText().trim(),
+                    cwDescField.getText().trim(),
+                    Double.parseDouble(cwDurationField.getText().trim()),
+                    Integer.parseInt(cwCaloriesField.getText().trim()),
+                    currentUser.userIdProperty().get(),
+                    LocalDateTime.now(),
+                    Double.parseDouble(cwDistanceField.getText().trim()),
+                    cwHRField.getText().trim()
+            );
 
-    //ADD A WAY TO FILTER WORKOUTS BY TYPE, INTENSITY AND ESLAPSED TIME PREFERABLY STREAMS
-    /**
-     * Filtering data using a parallel stream by the workout type. Types can be
-     * either Cardio or Muscular. Can get the type from a combo box.
-     *
-     * @param type
-     * @return
-     */
-    public ObservableList<Workout> filterByType(String type) {
-        ObservableList<Workout> workout = DatabaseManager.displayWorkoutLogs(loggedUser.userIdProperty().get());
-        List<Workout> filtered = workout.parallelStream().filter(w -> {
-            if (type.equalsIgnoreCase("Muscular")) {
-                return w instanceof MuscularWorkout;
-            } else if (type.equalsIgnoreCase("Cardio")) {
-                return w instanceof CardioWorkout;
-            } else {
-                showMessageWindow("Type unknown", "Please choose a valid workout type provided by the dropdown list to filter by.", AlertType.WARNING, ButtonType.OK);
-                return false;
-            }
-        }).collect(Collectors.toList());
-        return FXCollections.observableArrayList(filtered);
-    }
+            DatabaseManager.addNewWorkoutToDb(cw);
+            refreshAll();
+            clearCardioForm();
 
-    /**
-     * Filtering data using a parallel stream by how intense a workout was.
-     * Types can range from Light -> Medium -> Intense.
-     *
-     * @param intensityRating
-     * @return
-     */
-    public ObservableList<Workout> filterByIntensity(String intensityRating) {
-        ObservableList<Workout> workout = DatabaseManager.displayWorkoutLogs(loggedUser.userIdProperty().get());
-        List<Workout> filtered = workout.parallelStream().filter(w -> {
-            String intensity = getIntensityRange(w);
-            return intensity.equalsIgnoreCase(intensityRating);
-        }).collect(Collectors.toList());
-        return FXCollections.observableArrayList(filtered);
-    }
-
-    /**
-     * Helper function to get the verbal intensity rating based on already
-     * existing data
-     *
-     * @param workout
-     * @return
-     */
-    private String getIntensityRange(Workout workout) {
-        if (workout instanceof MuscularWorkout mw) {
-            double volume = mw.totalWeightProperty().get() * mw.totalRepsProperty().get() * mw.totalSetsProperty().get();
-            if (volume <= 1000) {
-                return "Light";
-            } else if (volume > 1000 && volume <= 3000) {
-                return "Medium";
-            } else {
-                return "Intense";
-            }
-        } else if (workout instanceof CardioWorkout cw) {
-            String hr = cw.heartRateZoneProperty().get();
-            if (hr.equalsIgnoreCase("Healthy")) {
-                return "Light";
-            } else if (hr.equalsIgnoreCase("Fitness") || hr.equalsIgnoreCase("Aerobic")) {
-                return "Medium";
-            } else {
-                return "Intense";
-            }
+        } catch (Exception e) {
+            showMessageWindow("Invalid input", "Check cardio workout fields.", AlertType.ERROR, OK);
         }
-        return null;
+    }
+
+    private void addMuscular() {
+        try {
+            MuscularWorkout mw = new MuscularWorkout(
+                    0,
+                    mwNameField.getText().trim(),
+                    mwDescField.getText().trim(),
+                    Double.parseDouble(mwDurationField.getText().trim()),
+                    Integer.parseInt(mwCaloriesField.getText().trim()),
+                    currentUser.userIdProperty().get(),
+                    LocalDateTime.now(),
+                    Integer.parseInt(mwSetsField.getText().trim()),
+                    Integer.parseInt(mwRepsField.getText().trim()),
+                    Double.parseDouble(mwWeightField.getText().trim())
+            );
+
+            DatabaseManager.addNewWorkoutToDb(mw);
+            refreshAll();
+            clearMuscularForm();
+
+        } catch (Exception e) {
+            showMessageWindow("Invalid input", "Check muscular workout fields.", AlertType.ERROR, OK);
+        }
+    }
+
+    private void clearCardioForm() {
+        cwNameField.clear();
+        cwDescField.clear();
+        cwDurationField.clear();
+        cwCaloriesField.clear();
+        cwDistanceField.clear();
+        cwHRField.clear();
+    }
+
+    private void clearMuscularForm() {
+        mwNameField.clear();
+        mwDescField.clear();
+        mwDurationField.clear();
+        mwCaloriesField.clear();
+        mwSetsField.clear();
+        mwRepsField.clear();
+        mwWeightField.clear();
+    }
+
+    private void setupContextMenus() {
+        MenuItem delC = new MenuItem("Delete");
+        delC.setOnAction(e -> delete(cardioTable.getSelectionModel().getSelectedItem()));
+        cardioTable.setContextMenu(new ContextMenu(delC));
+
+        MenuItem delM = new MenuItem("Delete");
+        delM.setOnAction(e -> delete(muscularTable.getSelectionModel().getSelectedItem()));
+        muscularTable.setContextMenu(new ContextMenu(delM));
+    }
+
+    private void delete(Workout w) {
+        if (w == null) return;
+
+        Alert a = new Alert(AlertType.CONFIRMATION,
+                "Delete this workout?", OK, ButtonType.CANCEL);
+
+        if (a.showAndWait().filter(b -> b == OK).isEmpty()) return;
+
+        DatabaseManager.deleteWorkout(
+                w.workoutIdProperty().get(),
+                currentUser.userIdProperty().get());
+
+        refreshAll();
     }
 }

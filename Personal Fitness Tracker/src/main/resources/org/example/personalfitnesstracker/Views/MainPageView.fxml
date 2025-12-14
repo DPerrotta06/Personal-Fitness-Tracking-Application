@@ -119,6 +119,11 @@
                     style="-fx-background-color: #1435d1; -fx-text-fill: white; -fx-font-size: 14; -fx-background-radius: 8;"
                     maxWidth="150"/>
 
+            <Button fx:id="addWorkoutButton"
+                    text="Add Workout"
+                    style="-fx-background-color: #1435d1; -fx-text-fill: white; -fx-font-size: 14; -fx-background-radius: 8;"
+                    maxWidth="150"/>
+
             <Button fx:id="nutritionButton"
                     text="Nutrition"
                     style="-fx-background-color: #1435d1; -fx-text-fill: white; -fx-font-size: 14; -fx-background-radius: 8;"
